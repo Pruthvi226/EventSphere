@@ -1,0 +1,116 @@
+package com.eventsphere.service.impl;
+
+import com.eventsphere.dto.NotificationDTO;
+import com.eventsphere.entity.Notification;
+import com.eventsphere.entity.User;
+import com.eventsphere.repository.NotificationRepository;
+import com.eventsphere.repository.UserRepository;
+import com.eventsphere.service.NotificationService;
+import com.eventsphere.exception.ResourceNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+public class NotificationServiceImpl implements NotificationService {
+    
+    @Autowired
+    private NotificationRepository notificationRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Override
+    public NotificationDTO createNotification(Long userId, String title, String message) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        
+        Notification notification = new Notification();
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setReadStatus(false);
+        notification.setUser(user);
+        
+        Notification saved = notificationRepository.save(notification);
+        return mapToDTO(saved);
+    }
+    
+    @Override
+    public List<NotificationDTO> getNotificationsByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return notificationRepository.findByUserOrderByCreatedAtDesc(user).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<NotificationDTO> getUnreadNotificationsByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return notificationRepository.findUnreadByUser(user).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
+    public long getUnreadCountByUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return notificationRepository.countUnreadByUser(user);
+    }
+    
+    @Override
+    public void markAsRead(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+        notification.setReadStatus(true);
+        notificationRepository.save(notification);
+    }
+    
+    @Override
+    public void markAllAsRead(Long userId) {
+        List<Notification> unread = notificationRepository.findUnreadByUser(
+                userRepository.findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found")));
+        unread.forEach(n -> n.setReadStatus(true));
+        notificationRepository.saveAll(unread);
+    }
+    
+    @Override
+    public void deleteNotification(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found"));
+        notificationRepository.delete(notification);
+    }
+    
+    @Override
+    public void sendRegistrationConfirmation(Long registrationId) {
+        // Implementation for sending registration confirmation
+    }
+    
+    @Override
+    public void sendEventReminder(Long eventId) {
+        // Implementation for sending event reminder
+    }
+    
+    @Override
+    public void sendCertificateAvailableNotification(Long certificateId) {
+        // Implementation for sending certificate available notification
+    }
+    
+    private NotificationDTO mapToDTO(Notification notification) {
+        NotificationDTO dto = new NotificationDTO();
+        dto.setId(notification.getId());
+        dto.setTitle(notification.getTitle());
+        dto.setMessage(notification.getMessage());
+        dto.setReadStatus(notification.getReadStatus());
+        dto.setUserId(notification.getUser().getId());
+        dto.setCreatedAt(notification.getCreatedAt());
+        return dto;
+    }
+}

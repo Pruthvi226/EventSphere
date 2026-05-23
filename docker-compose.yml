@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: eventsphere-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-eventsphere_db}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eventsphere-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_SERVLET_CONTEXT_PATH: ${SERVER_SERVLET_CONTEXT_PATH:-/}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-root}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      JAVA_OPTS: ${JAVA_OPTS:-}
+    ports:
+      - "${APP_PORT:-28080}:8080"
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  mysql-data:
+  uploads:
