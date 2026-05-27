@@ -1,57 +1,224 @@
 # EventSphere
 
-EventSphere is a Spring Boot web application for college event operations. It supports public event discovery, role-based dashboards, registrations, attendance tracking, feedback, notifications, and verifiable certificate workflows.
+![Java 17](https://img.shields.io/badge/Java-17-blue)
+![Spring Boot 3.2](https://img.shields.io/badge/Spring%20Boot-3.2-brightgreen)
+[![CI](https://github.com/Pruthvi226/EventSphere/actions/workflows/ci.yml/badge.svg)](https://github.com/Pruthvi226/EventSphere/actions/workflows/ci.yml)
+![License](https://img.shields.io/badge/License-Not%20specified-lightgrey)
 
-## Features
+EventSphere is a college event management web app that helps students, organizers, volunteers, and admins manage events, registrations, attendance, feedback, and certificates in one place.
 
-- Public landing page, event catalog, event details, contact page, and certificate verification.
-- Role-based access for admins, organizers, volunteers, and students.
-- Event creation, publishing, registrations, waitlists, attendance, feedback, and certificate records.
-- Seed data for demo and local review, controlled by `APP_SEED_ENABLED`.
-- Docker Compose deployment with MySQL and optional phpMyAdmin.
-- CI workflow that runs Maven tests and packages the application.
+## 1. Project Title & Tagline
 
-## Tech Stack
+**EventSphere - College Event Management Platform**
 
-- Java 17
-- Spring Boot 3.2
-- Spring Security 6
-- Spring Data JPA and Hibernate
-- Thymeleaf
-- MySQL 8
-- Maven
-- Docker
+A role-based event operations system for colleges, built with Spring Boot (a Java framework for building production-ready web apps) and Thymeleaf (a server-side template engine that renders HTML pages).
 
-## Screenshots
+## 2. Live Demo / Screenshots
 
-Screenshots are stored in [docs/screenshots](docs/screenshots).
+**Local Docker Demo**
 
-| Page | Preview |
-| --- | --- |
-| Home | ![Home page](docs/screenshots/home.png) |
-| Events | ![Events page](docs/screenshots/events.png) |
-| Login | ![Login page](docs/screenshots/login.png) |
-| Certificate verification | ![Certificate verification page](docs/screenshots/certificate-verify.png) |
+```text
+http://localhost:28080
+```
 
-The complete demo screenshot set is stored in [docs/screenshots/demo](docs/screenshots/demo), including public pages plus admin, organizer, student, and volunteer views. A route/file manifest is available at [docs/screenshots/demo/manifest.json](docs/screenshots/demo/manifest.json).
+**Local Maven Demo**
 
-## Quick Start
+```text
+http://localhost:8080/eventsphere
+```
 
-### Prerequisites
+Screenshots below use placeholder paths. Add your final images under `screenshots/`.
+
+**Home Page**
+![Home Page](screenshots/home.png)
+> Shows the public landing page, featured events, and the main navigation into the platform.
+
+**Event Catalog Page**
+![Event Catalog](screenshots/events.png)
+> Lets visitors browse available campus events before logging in.
+
+**Event Details Page**
+![Event Details](screenshots/event-details.png)
+> Shows event information, schedule details, capacity, and registration actions.
+
+**Login Page**
+![Login](screenshots/login.png)
+> Allows users to sign in with demo or registered accounts.
+
+**Register Page**
+![Register](screenshots/register.png)
+> Lets a student create an account and start registering for events.
+
+**Admin Dashboard Page**
+![Admin Dashboard](screenshots/admin-dashboard.png)
+> Gives admins a high-level view of users, events, and platform activity.
+
+**Admin Users Page**
+![Admin Users](screenshots/admin-users.png)
+> Lets admins enable or disable users and manage role assignments.
+
+**Organizer Dashboard Page**
+![Organizer Dashboard](screenshots/organizer-dashboard.png)
+> Helps organizers manage their events and track registrations.
+
+**Create Event Page**
+![Create Event](screenshots/organizer-new-event.png)
+> Lets organizers create and publish new campus events.
+
+**Organizer Registrations Page**
+![Organizer Registrations](screenshots/organizer-registrations.png)
+> Shows who registered for an event and supports event operations.
+
+**Organizer Attendance Page**
+![Organizer Attendance](screenshots/organizer-attendance.png)
+> Lets organizers mark attendance and verify participation.
+
+**Organizer Feedback Page**
+![Organizer Feedback](screenshots/organizer-feedback.png)
+> Displays student feedback so organizers can review event quality.
+
+**Student Dashboard Page**
+![Student Dashboard](screenshots/student-dashboard.png)
+> Shows a student's registered events, upcoming opportunities, and quick actions.
+
+**Student Registrations Page**
+![Student Registrations](screenshots/student-registrations.png)
+> Lets students review registrations and cancel when needed.
+
+**Student Certificates Page**
+![Student Certificates](screenshots/student-certificates.png)
+> Shows earned certificates and download options.
+
+**Volunteer Dashboard Page**
+![Volunteer Dashboard](screenshots/volunteer-dashboard.png)
+> Shows assigned events and attendance responsibilities for volunteers.
+
+**Volunteer Attendance Page**
+![Volunteer Attendance](screenshots/volunteer-attendance.png)
+> Lets volunteers mark student attendance by registration details.
+
+**Certificate Verification Page**
+![Certificate Verification](screenshots/certificate-verify.png)
+> Lets anyone verify whether a certificate is valid.
+
+**Contact Page**
+![Contact](screenshots/contact.png)
+> Provides a simple way for visitors to find contact information.
+
+**Screenshot Checklist**
+
+- [ ] Home / Landing page - show the hero section, navigation, and featured event cards.
+- [ ] Event Catalog page - show multiple events with dates, category, and capacity details.
+- [ ] Event Details page - show one event with the registration call-to-action visible.
+- [ ] Login page - show demo account cards and the sign-in form.
+- [ ] Register page - show the student account form and validation-friendly fields.
+- [ ] Admin Dashboard - show the main admin metrics and management overview.
+- [ ] Admin Users panel - show user rows, status controls, and role management.
+- [ ] Organizer Dashboard - show organizer-owned events and event actions.
+- [ ] Create Event form - show event title, date, capacity, venue, and publish flow.
+- [ ] Organizer Registrations - show registered students for one event.
+- [ ] Organizer Attendance - show attendance marking controls.
+- [ ] Organizer Feedback - show feedback entries and ratings.
+- [ ] Student Dashboard - show a logged-in student view with upcoming events.
+- [ ] Student Registrations - show current registrations and cancellation action.
+- [ ] Student Certificates - show certificate list and download action.
+- [ ] Volunteer Dashboard - show assigned event responsibilities.
+- [ ] Volunteer Attendance - show attendance entry or lookup workflow.
+- [ ] Certificate Verification - show certificate lookup and result message.
+- [ ] Validation feedback - submit one form with missing data and capture friendly errors.
+- [ ] Error or empty state - show how the app behaves when no records are available.
+
+## 3. Key Features (Bullet List)
+
+- Securely log in with role-based access for Admin, Organizer, Volunteer, and Student users.
+- Browse campus events without an account and view event details before registering.
+- Register for events, join waitlists, cancel registrations, and track participation.
+- Create, publish, archive, and manage events from an organizer workspace.
+- Mark attendance through organizer and volunteer workflows.
+- Collect student feedback after events to improve future planning.
+- Generate and download certificates for eligible participants.
+- Verify certificates publicly so achievements can be trusted outside the app.
+
+## 4. Tech Stack Table
+
+| Layer | Technology |
+|-------|-----------|
+| Backend | Java 17, Spring Boot 3.2 (framework for building Java web applications), Spring MVC (pattern for routing browser requests to Java controllers) |
+| Frontend/Templates | Thymeleaf (HTML templates rendered by the server), HTML, CSS, JavaScript |
+| Database | MySQL 8, Spring Data JPA (library that maps Java objects to database tables), Hibernate (database engine used by JPA) |
+| Security | Spring Security (handles login, sessions, and role-based page access), BCrypt password hashing |
+| Build Tool | Maven (downloads dependencies, runs tests, and packages the app) |
+| Deployment | Docker Compose (runs the app and MySQL together), GitHub Actions (automated build checks), Render with TiDB support |
+
+## 5. Architecture Overview (Optional - include if relevant)
+
+EventSphere follows a layered MVC structure. Browser requests go to controllers, controllers call services for business rules, services use repositories for database access, and Thymeleaf templates render the final HTML pages.
+
+```text
+Browser
+  |
+  v
+Controller
+  |
+  v
+Service
+  |
+  v
+Repository
+  |
+  v
+MySQL Database
+```
+
+## 6. Getting Started (Step-by-Step)
+
+**Prerequisites**
 
 - Java 17+
 - Maven 3.8+
-- MySQL 8+
+- MySQL 8+ for local development, or Docker Desktop for the easiest setup
 
-### Local MySQL Setup
+**1. Clone the repository**
 
-Create a database:
+```powershell
+git clone https://github.com/Pruthvi226/EventSphere.git
+cd EventSphere
+```
+
+**2. Run with Docker Compose**
+
+```powershell
+docker compose up -d --build
+```
+
+Open the app:
+
+```text
+http://localhost:28080
+```
+
+Stop the app:
+
+```powershell
+docker compose down
+```
+
+Reset local Docker data if credentials or seeded data get out of sync:
+
+```powershell
+docker compose down -v
+docker compose up -d --build
+```
+
+**3. Run locally with Maven and MySQL**
+
+Create the database:
 
 ```sql
 CREATE DATABASE eventsphere_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
-Set the database connection with environment variables:
+Set database environment variables:
 
 ```powershell
 $env:SPRING_DATASOURCE_URL="jdbc:mysql://localhost:3306/eventsphere_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true"
@@ -59,104 +226,19 @@ $env:SPRING_DATASOURCE_USERNAME="root"
 $env:SPRING_DATASOURCE_PASSWORD="your-password"
 ```
 
-Run the app:
+Start the app:
 
 ```powershell
 mvn spring-boot:run
 ```
 
-Open:
+Open the app:
 
 ```text
 http://localhost:8080/eventsphere
 ```
 
-## Docker Deployment
-
-Copy the environment template and edit passwords before deploying outside local development:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Start the stack:
-
-```powershell
-docker compose up -d --build
-```
-
-Open:
-
-```text
-http://localhost:28080
-```
-
-Optional phpMyAdmin:
-
-```powershell
-docker compose --profile tools up -d phpmyadmin
-```
-
-Open:
-
-```text
-http://localhost:28081
-```
-
-Useful commands:
-
-```powershell
-docker compose ps
-docker compose logs -f app
-docker compose logs -f db
-docker compose down
-docker compose down -v
-```
-
-## Render Deployment with TiDB
-
-For a Render web service backed by TiDB, use these settings:
-
-```text
-Build Command: mvn -DskipTests package
-Start Command: java -jar target/eventsphere-1.0.0.jar
-```
-
-Set these Render environment variables:
-
-| Variable | Value |
-| --- | --- |
-| `SPRING_DATASOURCE_URL` | TiDB MySQL JDBC URL, for example `jdbc:mysql://<tidb-host>:4000/<database>?sslMode=VERIFY_IDENTITY&enabledTLSProtocols=TLSv1.2,TLSv1.3` |
-| `SPRING_DATASOURCE_USERNAME` | TiDB username |
-| `SPRING_DATASOURCE_PASSWORD` | TiDB password |
-| `SPRING_JPA_DATABASE_PLATFORM` | `org.hibernate.dialect.MySQLDialect` |
-| `SPRING_JPA_HIBERNATE_DDL_AUTO` | `update` |
-| `APP_SEED_ENABLED` | `false` for production, `true` for demo |
-| `SERVER_SERVLET_CONTEXT_PATH` | `/eventsphere` or `/` |
-
-Render provides the runtime port in `PORT`; EventSphere automatically uses it when `SERVER_PORT` is not set.
-
-## Configuration
-
-Common environment variables:
-
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `SERVER_PORT` | `PORT` or `8080` | Spring Boot server port inside the container or local process. |
-| `SERVER_SERVLET_CONTEXT_PATH` | `/` in Docker, `/eventsphere` locally | Application base path. |
-| `SPRING_DATASOURCE_URL` | Local MySQL URL | JDBC connection string. |
-| `SPRING_DATASOURCE_USERNAME` | `root` locally, `eventsphere` in Docker | Database user. |
-| `SPRING_DATASOURCE_PASSWORD` | empty locally | Database password. |
-| `SPRING_JPA_DATABASE_PLATFORM` | `org.hibernate.dialect.MySQLDialect` | Hibernate SQL dialect for MySQL-compatible databases such as MySQL and TiDB. |
-| `SPRING_JPA_HIBERNATE_DDL_AUTO` | `update` | Hibernate schema strategy. |
-| `APP_SEED_ENABLED` | `true` | Enables demo users, events, registrations, and certificates. |
-| `FILE_UPLOAD_DIR` | `uploads/` | Local upload directory. |
-
-For production, set strong database credentials, consider setting `APP_SEED_ENABLED=false`, and manage schema changes with migrations or reviewed SQL.
-
-## Demo Accounts
-
-When seed data is enabled, these demo users are created:
+**Default demo accounts**
 
 | Role | Email | Password |
 | --- | --- | --- |
@@ -165,81 +247,109 @@ When seed data is enabled, these demo users are created:
 | Volunteer | `volunteer@eventsphere.com` | `volunteer123` |
 | Student | `student1@eventsphere.com` | `student123` |
 
-## Tests and Build
-
-Run the automated test suite:
+**Run tests**
 
 ```powershell
 mvn test
 ```
 
-Build the deployable jar:
+**Build the deployable jar**
 
 ```powershell
 mvn clean package
 ```
 
-The packaged application is created under `target/`.
-
-## Demo Screenshot Capture
-
-Start the app with seed data, then regenerate the full demo screenshot set:
-
-```powershell
-$env:DEMO_BASE_URL="http://localhost:8080/eventsphere"
-$env:DEMO_SCREENSHOT_DIR="docs/screenshots/demo"
-node scripts/capture-demo-screenshots.mjs
-```
-
-The script uses headless Chrome or Edge, signs in with the seeded demo accounts, checks each page for error redirects, and writes screenshots plus `manifest.json`.
-
-## Project Structure
+## 7. Project Structure
 
 ```text
 src/main/java/com/eventsphere
-  config/       Spring and seed configuration
-  controller/   MVC controllers
-  dto/          Form and transfer objects
-  entity/       JPA entities
-  repository/   Spring Data repositories
-  security/     User-details integration
-  service/      Business services
-  validation/   Custom validators
+  config/          App configuration, security setup, and demo data seeding
+  controller/      Web controllers that handle page routes and form actions
+  dto/             Data transfer objects used for forms and validation
+  entity/          Database models such as User, Event, Registration, and Certificate
+  exception/       Custom exceptions for missing resources and access errors
+  repository/      Spring Data JPA database access interfaces
+  security/        Custom user lookup for login and role checks
+  service/         Business logic interfaces
+  service/impl/    Business logic implementations
+  validation/      Custom form validation annotations and rules
 
 src/main/resources
-  static/       CSS and JavaScript assets
-  templates/    Thymeleaf views
+  static/          CSS and JavaScript assets
+  templates/       Thymeleaf HTML pages
   application.properties
   application-docker.properties
-  schema.sql
+  schema.sql       Database schema reference
+
+docs/screenshots   Existing generated screenshot assets for demo review
+scripts/           Utility scripts, including screenshot capture
 ```
 
-## Deployment Notes
+## 8. API / Pages Reference (if applicable)
 
-- Build artifacts, local `.env` files, IDE settings, logs, and uploads are ignored by git.
-- The Docker image runs as a non-root `eventsphere` user.
-- Docker Compose stores MySQL data and uploaded files in named volumes.
-- The CI workflow runs `mvn test` and `mvn -DskipTests package` on pushes and pull requests.
-- Public routes include `/`, `/events`, `/about`, `/contact`, `/certificate-verify`, and `/auth/**`.
+| Method | URL | Description | Auth Required |
+| --- | --- | --- | --- |
+| GET | `/` | Home page | No |
+| GET | `/about` | About page | No |
+| GET | `/contact` | Contact page | No |
+| GET | `/events` | Event catalog | No |
+| GET | `/events/{id}` | Event details | No |
+| GET | `/events/search` | Search events | No |
+| GET | `/certificate-verify` | Certificate verification page | No |
+| GET | `/auth/login` | Login page | No |
+| POST | `/auth/login` | Submit login form | No |
+| GET | `/auth/register` | Student registration page | No |
+| POST | `/auth/register` | Submit student registration | No |
+| GET | `/dashboard` | Redirects users to their role dashboard | Yes |
+| GET | `/admin/dashboard` | Admin overview | Admin |
+| GET | `/admin/users` | Manage users and roles | Admin |
+| POST | `/admin/users/{userId}/enable` | Enable a user | Admin |
+| POST | `/admin/users/{userId}/disable` | Disable a user | Admin |
+| POST | `/admin/users/{userId}/role` | Update a user role | Admin |
+| DELETE | `/admin/users/{userId}` | Delete a user | Admin |
+| GET | `/organizer/dashboard` | Organizer event workspace | Organizer |
+| GET | `/organizer/events/new` | Create event form | Organizer |
+| POST | `/organizer/events` | Create event | Organizer |
+| POST | `/organizer/events/{eventId}/publish` | Publish event | Organizer |
+| POST | `/organizer/events/{eventId}/archive` | Archive event | Organizer |
+| GET | `/organizer/events/{eventId}/registrations` | View event registrations | Organizer |
+| GET | `/organizer/events/{eventId}/attendance` | Manage attendance | Organizer |
+| POST | `/organizer/events/{eventId}/attendance/mark/{registrationId}` | Mark attendance | Organizer |
+| GET | `/organizer/events/{eventId}/feedback` | View feedback | Organizer |
+| POST | `/organizer/events/{eventId}/generate-certificates/{type}` | Generate certificates | Organizer |
+| GET | `/student/dashboard` | Student dashboard | Student |
+| POST | `/student/register-event/{eventId}` | Register for an event | Student |
+| POST | `/student/join-waitlist/{eventId}` | Join an event waitlist | Student |
+| GET | `/student/my-registrations` | View student registrations | Student |
+| POST | `/student/registrations/{registrationId}/cancel` | Cancel a registration | Student |
+| GET | `/student/certificates` | View certificates | Student |
+| POST | `/student/submit-feedback/{eventId}` | Submit feedback | Student |
+| GET | `/volunteer/dashboard` | Volunteer dashboard | Volunteer |
+| GET | `/volunteer/attendance` | Volunteer attendance page | Volunteer |
+| POST | `/volunteer/mark-attendance` | Mark attendance | Volunteer |
+| POST | `/volunteer/mark-attendance/number` | Mark attendance by number | Volunteer |
+| POST | `/volunteer/mark-attendance/{registrationId}` | Mark attendance by registration | Volunteer |
+| GET | `/certificates/{id}/download` | Download a certificate PDF | Logged-in certificate owner or authorized role |
 
-## Troubleshooting
+## 9. What I Learned / Highlights (Recruiter Section)
 
-Database connection errors:
+- Designed a real multi-role workflow where each user type sees only the pages and actions they need.
+- Built a layered Spring Boot application that separates page routing, business rules, and database access.
+- Used validation and clear form flows to reduce bad event, registration, and feedback data.
+- Containerized the app with Docker Compose so reviewers can run the full web app and database with one command.
+- Added demo seed data and screenshot tooling to make the project easy to review quickly.
 
-- Confirm MySQL is running and reachable.
-- Check `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD`.
-- For Docker, inspect `docker compose logs -f db`.
+## 10. Future Improvements
 
-Port conflicts:
+- Add email notifications for registration updates, waitlist movement, and certificate availability.
+- Add richer analytics for organizers, such as attendance trends and feedback summaries.
+- Add file uploads for event posters and student proof documents.
+- Add automated end-to-end browser tests for the main user journeys.
 
-- Change `SERVER_PORT` for local runs.
-- Change `APP_PORT`, `MYSQL_PORT`, or `PHPMYADMIN_PORT` in `.env` for Docker.
+## 11. Contact
 
-Template or static asset issues:
-
-- Confirm templates are under `src/main/resources/templates`.
-- Confirm static files are under `src/main/resources/static`.
-
-## License
-
-This project is currently provided as coursework/demo software. Add a `LICENSE` file before publishing it as open source.
+| Platform | Link |
+| --- | --- |
+| GitHub | [github.com/Pruthvi226](https://github.com/Pruthvi226) |
+| LinkedIn | Add your LinkedIn profile URL |
+| Email | Add your professional email address |
