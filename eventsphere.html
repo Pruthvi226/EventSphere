@@ -1,0 +1,2737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EventSphere — College Event Management Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== DESIGN TOKENS ===== */
+:root {
+  --primary: #4F46E5;
+  --primary-light: #6366F1;
+  --primary-dark: #3730A3;
+  --primary-glow: rgba(79,70,229,0.18);
+  --cyan: #06B6D4;
+  --cyan-light: rgba(6,182,212,0.12);
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --bg: #F8FAFC;
+  --bg-2: #F1F5F9;
+  --card: #FFFFFF;
+  --text: #0F172A;
+  --text-2: #475569;
+  --text-3: #94A3B8;
+  --border: #E2E8F0;
+  --border-2: #CBD5E1;
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md: 0 4px 16px rgba(15,23,42,0.08), 0 2px 6px rgba(15,23,42,0.05);
+  --shadow-lg: 0 12px 40px rgba(15,23,42,0.12), 0 4px 12px rgba(15,23,42,0.06);
+  --shadow-xl: 0 24px 64px rgba(15,23,42,0.14), 0 8px 24px rgba(15,23,42,0.08);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+  --font-display: 'Outfit', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --sidebar-w: 260px;
+  --topbar-h: 64px;
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: var(--font-body); background: var(--bg); color: var(--text); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; border: none; outline: none; }
+img { max-width: 100%; display: block; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 3px; }
+
+/* ===== PAGE SECTIONS NAV ===== */
+.page-nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  background: rgba(248,250,252,0.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 56px;
+}
+.page-nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 20px; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+.page-nav-logo span { color: var(--text); }
+.page-nav-tabs { display: flex; gap: 4px; overflow-x: auto; }
+.page-nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab {
+  padding: 6px 14px; border-radius: var(--radius-full); font-size: 12px; font-weight: 500; white-space: nowrap;
+  color: var(--text-2); transition: all 0.2s; cursor: pointer; border: none; background: transparent;
+}
+.nav-tab:hover, .nav-tab.active { background: var(--primary); color: #fff; }
+
+/* ===== SECTION WRAPPER ===== */
+.section { min-height: 100vh; display: none; padding-top: 56px; }
+.section.active { display: block; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 20px; border-radius: var(--radius-md); font-weight: 600; font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; border: none;
+  font-family: var(--font-display);
+  position: relative; overflow: hidden;
+}
+.btn::after { content:''; position:absolute; inset:0; background:rgba(255,255,255,0); transition:background 0.2s; }
+.btn:hover::after { background:rgba(255,255,255,0.12); }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(79,70,229,0.35); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,0.45); }
+.btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
+.btn-cyan { background: var(--cyan); color: #fff; box-shadow: 0 4px 14px rgba(6,182,212,0.35); }
+.btn-cyan:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6,182,212,0.45); }
+.btn-ghost { background: transparent; color: var(--text-2); }
+.btn-ghost:hover { background: var(--bg-2); color: var(--text); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-lg { padding: 14px 28px; font-size: 16px; border-radius: var(--radius-lg); }
+.btn-sm { padding: 6px 14px; font-size: 12px; border-radius: var(--radius-sm); }
+.btn-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-md); }
+.btn-icon-lg { width: 44px; height: 44px; padding: 0; border-radius: var(--radius-lg); }
+
+/* ===== BADGES ===== */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: var(--radius-full); font-size: 11px; font-weight: 600;
+  font-family: var(--font-display);
+}
+.badge-primary { background: rgba(79,70,229,0.1); color: var(--primary); }
+.badge-cyan { background: rgba(6,182,212,0.1); color: var(--cyan); }
+.badge-success { background: rgba(16,185,129,0.1); color: var(--success); }
+.badge-warning { background: rgba(245,158,11,0.1); color: var(--warning); }
+.badge-danger { background: rgba(239,68,68,0.1); color: var(--danger); }
+.badge-neutral { background: var(--bg-2); color: var(--text-2); }
+.badge-dot::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; }
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.card-elevated { box-shadow: var(--shadow-md); }
+.card-elevated:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+
+/* ===== AVATAR ===== */
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; color: #fff; flex-shrink: 0; }
+.avatar-sm { width: 28px; height: 28px; font-size: 11px; }
+.avatar-lg { width: 48px; height: 48px; font-size: 18px; }
+.avatar-xl { width: 72px; height: 72px; font-size: 24px; border-radius: 20px; }
+
+/* ===== FORMS ===== */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.form-input {
+  padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-md);
+  font-size: 14px; font-family: var(--font-body); color: var(--text); background: var(--card);
+  transition: all 0.2s; outline: none; width: 100%;
+}
+.form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+.form-input::placeholder { color: var(--text-3); }
+.form-hint { font-size: 12px; color: var(--text-3); }
+.form-error { font-size: 12px; color: var(--danger); }
+
+/* ===== TABS ===== */
+.tabs { display: flex; background: var(--bg-2); border-radius: var(--radius-md); padding: 4px; gap: 2px; }
+.tab-item { padding: 8px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; color: var(--text-2); }
+.tab-item.active { background: var(--card); color: var(--primary); box-shadow: var(--shadow-sm); font-weight: 600; }
+
+/* ===== PROGRESS ===== */
+.progress { height: 6px; background: var(--bg-2); border-radius: 3px; overflow: hidden; }
+.progress-bar { height: 100%; background: linear-gradient(90deg, var(--primary), var(--cyan)); border-radius: 3px; transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* ===== SKELETON ===== */
+.skeleton { background: linear-gradient(90deg, var(--bg-2) 25%, #e8ecf0 50%, var(--bg-2) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: var(--radius-sm); }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes confetti-fall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100px) rotate(720deg); opacity: 0; } }
+@keyframes blob { 0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; } 50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; } }
+@keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(79,70,229,0.3); } 50% { box-shadow: 0 0 40px rgba(79,70,229,0.6); } }
+@keyframes scanline { 0% { top: 0; } 100% { top: 100%; } }
+
+.fade-up { animation: fadeUp 0.5s ease both; }
+.fade-in { animation: fadeIn 0.4s ease both; }
+
+/* ===== TOAST ===== */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+.toast {
+  background: var(--text); color: #fff; padding: 14px 18px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px;
+  box-shadow: var(--shadow-xl); animation: slideIn 0.3s ease;
+  min-width: 280px; max-width: 380px;
+}
+.toast-success { background: var(--success); }
+.toast-danger { background: var(--danger); }
+.toast-warning { background: var(--warning); color: var(--text); }
+
+/* ===== MODAL ===== */
+.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(4px); z-index: 500; display: flex; align-items: center; justify-content: center; animation: fadeIn 0.2s ease; }
+.modal { background: var(--card); border-radius: var(--radius-xl); padding: 32px; max-width: 520px; width: 90%; box-shadow: var(--shadow-xl); animation: fadeUp 0.3s ease; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.modal-title { font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+
+/* ==================== */
+/* ===== 1. LANDING PAGE ===== */
+/* ==================== */
+.landing-nav {
+  position: sticky; top: 56px; z-index: 100; background: rgba(248,250,252,0.92); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px; height: var(--topbar-h);
+}
+.landing-logo { font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+.landing-logo-dot { color: var(--primary); }
+.landing-nav-links { display: flex; align-items: center; gap: 8px; }
+.landing-nav-link { padding: 8px 16px; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; color: var(--text-2); transition: all 0.2s; }
+.landing-nav-link:hover { color: var(--text); background: var(--bg-2); }
+.landing-hero { padding: 80px 48px 80px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; max-width: 1200px; margin: 0 auto; }
+.landing-hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; background: rgba(79,70,229,0.08); border: 1px solid rgba(79,70,229,0.15); border-radius: var(--radius-full); padding: 6px 14px; font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 24px; }
+.landing-hero-title { font-family: var(--font-display); font-size: 52px; font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px; }
+.landing-hero-title .gradient { background: linear-gradient(135deg, var(--primary), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.landing-hero-desc { font-size: 17px; color: var(--text-2); line-height: 1.7; margin-bottom: 36px; }
+.landing-hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.landing-hero-visual { position: relative; }
+.hero-card-float {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl);
+  padding: 20px 24px; box-shadow: var(--shadow-lg);
+  animation: float 4s ease-in-out infinite;
+}
+.hero-card-float:nth-child(2) { animation-delay: -1.5s; }
+.hero-main-visual {
+  background: linear-gradient(135deg, #EEF2FF 0%, #E0F2FE 100%);
+  border-radius: var(--radius-xl); padding: 40px; position: relative; overflow: hidden;
+  border: 1px solid rgba(79,70,229,0.12);
+}
+.hero-blob {
+  position: absolute; width: 300px; height: 300px;
+  background: linear-gradient(135deg, rgba(79,70,229,0.15), rgba(6,182,212,0.15));
+  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  animation: blob 8s ease-in-out infinite;
+  top: -80px; right: -80px;
+}
+.hero-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
+.hero-stat { background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.6); border-radius: var(--radius-md); padding: 16px; text-align: center; }
+.hero-stat-num { font-family: var(--font-display); font-weight: 800; font-size: 24px; color: var(--primary); }
+.hero-stat-label { font-size: 11px; color: var(--text-2); margin-top: 2px; font-weight: 500; }
+.landing-stats { background: linear-gradient(135deg, var(--primary), #6366F1); padding: 48px; }
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 900px; margin: 0 auto; text-align: center; }
+.stat-item { color: #fff; }
+.stat-num { font-family: var(--font-display); font-size: 40px; font-weight: 800; }
+.stat-label { font-size: 14px; opacity: 0.8; margin-top: 4px; }
+.landing-features { padding: 80px 48px; max-width: 1200px; margin: 0 auto; }
+.section-header { text-align: center; margin-bottom: 56px; }
+.section-eyebrow { font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+.section-title { font-family: var(--font-display); font-size: 36px; font-weight: 800; line-height: 1.2; letter-spacing: -0.5px; }
+.section-desc { font-size: 16px; color: var(--text-2); margin-top: 12px; max-width: 500px; margin-left: auto; margin-right: auto; }
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.feature-card { padding: 28px; border-radius: var(--radius-xl); border: 1px solid var(--border); background: var(--card); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: default; }
+.feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: rgba(79,70,229,0.2); }
+.feature-icon { width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 18px; }
+.feature-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 8px; }
+.feature-desc { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+.events-carousel { padding: 60px 48px; background: var(--bg-2); }
+.carousel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto; }
+.event-card { background: var(--card); border-radius: var(--radius-xl); overflow: hidden; border: 1px solid var(--border); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.event-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-xl); }
+.event-banner { height: 160px; position: relative; overflow: hidden; }
+.event-banner-img { width: 100%; height: 100%; object-fit: cover; }
+.event-banner-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(15,23,42,0.6)); }
+.event-banner-badge { position: absolute; top: 12px; left: 12px; }
+.event-body { padding: 20px; }
+.event-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 8px; line-height: 1.3; }
+.event-meta { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+.event-meta-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-2); }
+.event-footer { display: flex; align-items: center; justify-content: space-between; }
+.event-seats { font-size: 12px; color: var(--text-3); }
+.testimonials-section { padding: 80px 48px; max-width: 1200px; margin: 0 auto; }
+.testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.testimonial-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 24px; }
+.testimonial-stars { display: flex; gap: 3px; color: var(--warning); font-size: 14px; margin-bottom: 14px; }
+.testimonial-text { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-bottom: 16px; font-style: italic; }
+.testimonial-author { display: flex; align-items: center; gap: 10px; }
+.testimonial-name { font-weight: 600; font-size: 14px; }
+.testimonial-role { font-size: 12px; color: var(--text-3); }
+.faq-section { padding: 60px 48px; background: var(--bg-2); }
+.faq-inner { max-width: 720px; margin: 0 auto; }
+.faq-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); margin-bottom: 8px; overflow: hidden; }
+.faq-q { padding: 18px 20px; font-weight: 600; font-size: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+.faq-a { padding: 0 20px 18px; font-size: 14px; color: var(--text-2); line-height: 1.7; display: none; }
+.faq-a.open { display: block; }
+.landing-footer { background: var(--text); color: rgba(255,255,255,0.6); padding: 48px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto; }
+.footer-brand-name { font-family: var(--font-display); font-weight: 800; font-size: 22px; color: #fff; margin-bottom: 10px; }
+.footer-brand-desc { font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+.footer-col-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.8); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 1px; }
+.footer-link { display: block; font-size: 14px; margin-bottom: 8px; transition: color 0.2s; }
+.footer-link:hover { color: #fff; }
+.footer-bottom { border-top: 1px solid rgba(255,255,255,0.08); margin-top: 40px; padding-top: 20px; text-align: center; font-size: 13px; }
+
+/* ==================== */
+/* ===== 2. LOGIN PAGE ===== */
+/* ==================== */
+.auth-layout { min-height: calc(100vh - 56px); display: grid; grid-template-columns: 1fr 1fr; }
+.auth-visual { background: linear-gradient(135deg, #1E1B4B 0%, #312E81 50%, #1E40AF 100%); position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 48px; }
+.auth-visual-blob { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.05); }
+.auth-visual-title { font-family: var(--font-display); font-size: 32px; font-weight: 800; color: #fff; text-align: center; line-height: 1.2; margin-bottom: 16px; position: relative; z-index: 1; }
+.auth-visual-desc { font-size: 16px; color: rgba(255,255,255,0.6); text-align: center; max-width: 320px; position: relative; z-index: 1; }
+.auth-visual-card { background: rgba(255,255,255,0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-xl); padding: 24px; margin-bottom: 32px; width: 100%; max-width: 360px; position: relative; z-index: 1; }
+.auth-panel { background: var(--card); display: flex; align-items: center; justify-content: center; padding: 60px 80px; }
+.auth-form { width: 100%; max-width: 380px; }
+.auth-form-title { font-family: var(--font-display); font-size: 28px; font-weight: 800; margin-bottom: 8px; }
+.auth-form-sub { font-size: 14px; color: var(--text-2); margin-bottom: 32px; }
+.auth-form-group { margin-bottom: 16px; }
+.auth-options { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.auth-check { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.auth-forgot { font-size: 13px; color: var(--primary); font-weight: 500; }
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+.auth-divider-line { flex: 1; height: 1px; background: var(--border); }
+.auth-divider-text { font-size: 12px; color: var(--text-3); }
+.auth-social { display: flex; gap: 10px; }
+.auth-social-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; background: var(--card); color: var(--text); }
+.auth-social-btn:hover { border-color: var(--primary); background: var(--bg-2); }
+.auth-link { font-size: 13px; color: var(--text-2); text-align: center; margin-top: 20px; }
+.auth-link a { color: var(--primary); font-weight: 600; }
+
+/* Glass effect for auth */
+.glass-input {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-md); padding: 10px 14px; width: 100%;
+  font-size: 14px; color: rgba(255,255,255,0.8); font-family: var(--font-body);
+}
+.glass-input::placeholder { color: rgba(255,255,255,0.3); }
+
+/* ==================== */
+/* ===== 3. REGISTER PAGE ===== */
+/* ==================== */
+.register-layout { min-height: calc(100vh - 56px); background: var(--bg); display: flex; align-items: flex-start; justify-content: center; padding: 48px 24px; }
+.register-card { background: var(--card); border-radius: var(--radius-xl); border: 1px solid var(--border); box-shadow: var(--shadow-lg); padding: 48px; max-width: 600px; width: 100%; }
+.register-logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 32px; }
+.steps-indicator { display: flex; align-items: center; margin-bottom: 40px; }
+.step-item { display: flex; align-items: center; gap: 10px; flex: 1; }
+.step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; transition: all 0.3s; }
+.step-circle.done { background: var(--success); color: #fff; }
+.step-circle.active { background: var(--primary); color: #fff; box-shadow: 0 0 0 4px rgba(79,70,229,0.15); }
+.step-circle.upcoming { background: var(--bg-2); color: var(--text-3); border: 2px solid var(--border); }
+.step-label { font-size: 12px; font-weight: 600; color: var(--text-2); }
+.step-label.active { color: var(--primary); }
+.step-connector { height: 2px; background: var(--border); flex: 1; margin: 0 8px; }
+.step-connector.done { background: var(--success); }
+.register-step { display: none; }
+.register-step.active { display: block; animation: fadeUp 0.3s ease; }
+.step-title { font-family: var(--font-display); font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+.step-subtitle { font-size: 14px; color: var(--text-2); margin-bottom: 28px; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.form-full { margin-bottom: 16px; }
+.role-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.role-card { border: 2px solid var(--border); border-radius: var(--radius-lg); padding: 20px; cursor: pointer; transition: all 0.2s; text-align: center; }
+.role-card:hover, .role-card.selected { border-color: var(--primary); background: rgba(79,70,229,0.04); }
+.role-card.selected .role-check { opacity: 1; }
+.role-icon { font-size: 28px; margin-bottom: 10px; }
+.role-name { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.role-desc { font-size: 12px; color: var(--text-2); }
+.role-check { width: 20px; height: 20px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; margin: 8px auto 0; opacity: 0; transition: opacity 0.2s; }
+
+/* ==================== */
+/* ===== DASHBOARD LAYOUT ===== */
+/* ==================== */
+.dashboard-layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: calc(100vh - 56px); }
+.sidebar { background: var(--card); border-right: 1px solid var(--border); padding: 20px 0; display: flex; flex-direction: column; position: sticky; top: 56px; height: calc(100vh - 56px); overflow-y: auto; }
+.sidebar-logo { padding: 8px 20px 20px; font-family: var(--font-display); font-weight: 800; font-size: 18px; color: var(--primary); border-bottom: 1px solid var(--border); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.sidebar-section { padding: 0 12px; margin-bottom: 4px; }
+.sidebar-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-3); padding: 4px 8px 8px; }
+.sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: var(--text-2); transition: all 0.2s; cursor: pointer; }
+.sidebar-link:hover { background: var(--bg-2); color: var(--text); }
+.sidebar-link.active { background: rgba(79,70,229,0.08); color: var(--primary); font-weight: 600; }
+.sidebar-link.active .sidebar-icon { color: var(--primary); }
+.sidebar-icon { width: 18px; text-align: center; font-size: 16px; }
+.sidebar-badge { margin-left: auto; }
+.sidebar-user { margin-top: auto; padding: 16px 20px; border-top: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.sidebar-user-info { flex: 1; min-width: 0; }
+.sidebar-user-name { font-size: 13px; font-weight: 600; }
+.sidebar-user-role { font-size: 11px; color: var(--text-3); }
+.main-content { padding: 28px 32px; overflow-x: hidden; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.topbar-title { font-family: var(--font-display); font-size: 22px; font-weight: 800; }
+.topbar-subtitle { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
+.search-bar { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 14px; width: 220px; transition: all 0.2s; }
+.search-bar:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); width: 260px; }
+.search-input { border: none; outline: none; background: transparent; font-size: 13px; width: 100%; font-family: var(--font-body); color: var(--text); }
+.search-input::placeholder { color: var(--text-3); }
+
+/* STAT CARDS */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; position: relative; overflow: hidden; transition: all 0.25s; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-card-label { font-size: 12px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.stat-card-value { font-family: var(--font-display); font-size: 28px; font-weight: 800; line-height: 1; }
+.stat-card-change { font-size: 12px; margin-top: 6px; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+.stat-card-change.up { color: var(--success); }
+.stat-card-change.down { color: var(--danger); }
+.stat-card-icon { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.stat-card::before { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+.stat-card.primary::before { background: var(--primary); }
+.stat-card.cyan::before { background: var(--cyan); }
+.stat-card.success::before { background: var(--success); }
+.stat-card.warning::before { background: var(--warning); }
+
+/* CHART AREA */
+.charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 24px; }
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+.chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.chart-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+.chart-legend { display: flex; gap: 16px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-2); font-weight: 500; }
+.legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+/* SVG chart bars */
+.bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; }
+.bar-group { display: flex; gap: 3px; align-items: flex-end; flex: 1; }
+.bar { border-radius: 4px 4px 0 0; transition: all 0.3s; cursor: pointer; min-width: 10px; }
+.bar:hover { opacity: 0.8; filter: brightness(1.05); }
+.bar-primary { background: linear-gradient(to top, var(--primary), var(--primary-light)); }
+.bar-cyan { background: linear-gradient(to top, var(--cyan), #22D3EE); }
+.bar-labels { display: flex; gap: 8px; margin-top: 8px; }
+.bar-label { flex: 1; text-align: center; font-size: 10px; color: var(--text-3); }
+.donut-wrapper { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.donut-chart { position: relative; width: 140px; height: 140px; }
+.donut-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+.donut-value { font-family: var(--font-display); font-size: 24px; font-weight: 800; }
+.donut-label { font-size: 10px; color: var(--text-3); }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.donut-legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 12px; }
+.donut-legend-label { display: flex; align-items: center; gap: 6px; color: var(--text-2); }
+.donut-legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+.donut-legend-val { font-weight: 600; }
+
+/* CONTENT ROWS */
+.content-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 16px; margin-bottom: 24px; }
+
+/* TABLE */
+.table-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.table-header-row { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.table-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; }
+table { width: 100%; border-collapse: collapse; }
+th { padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-3); background: var(--bg-2); border-bottom: 1px solid var(--border); }
+td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid rgba(226,232,240,0.6); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(79,70,229,0.02); }
+.event-name-cell { display: flex; align-items: center; gap: 10px; }
+.event-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+/* TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item { display: flex; gap: 14px; padding: 12px 0; position: relative; }
+.timeline-item:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 36px; bottom: -12px; width: 2px; background: var(--border); }
+.timeline-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.timeline-body { flex: 1; }
+.timeline-event { font-size: 13px; font-weight: 500; }
+.timeline-time { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+
+/* QUICK ACTIONS */
+.quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.quick-action { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; cursor: pointer; transition: all 0.2s; }
+.quick-action:hover { border-color: var(--primary); background: rgba(79,70,229,0.02); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.quick-action-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.quick-action-title { font-size: 13px; font-weight: 600; }
+.quick-action-desc { font-size: 11px; color: var(--text-3); }
+
+/* ===== EVENT LISTING ===== */
+.events-page { padding: 24px 32px; }
+.filter-bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+.filter-select { padding: 8px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 13px; background: var(--card); color: var(--text); cursor: pointer; outline: none; font-family: var(--font-body); }
+.filter-select:focus { border-color: var(--primary); }
+.events-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.event-card-full { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.event-card-full:hover { transform: translateY(-6px); box-shadow: var(--shadow-xl); border-color: rgba(79,70,229,0.15); }
+.event-card-banner { height: 180px; position: relative; overflow: hidden; }
+.event-card-banner-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; }
+.event-card-body { padding: 20px; }
+.event-card-category { margin-bottom: 10px; }
+.event-card-title { font-family: var(--font-display); font-weight: 700; font-size: 17px; margin-bottom: 12px; line-height: 1.3; }
+.event-card-info { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.event-card-info-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+.event-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; border-top: 1px solid var(--border); }
+.seats-indicator { display: flex; align-items: center; gap: 6px; }
+.seats-bar { width: 60px; height: 4px; background: var(--bg-2); border-radius: 2px; overflow: hidden; }
+.seats-filled { height: 100%; background: linear-gradient(90deg, var(--success), #34D399); border-radius: 2px; }
+
+/* ===== EVENT DETAILS ===== */
+.event-details-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; padding: 24px 32px; }
+.event-details-banner { border-radius: var(--radius-xl); overflow: hidden; height: 320px; position: relative; margin-bottom: 24px; }
+.event-details-banner-bg { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 80px; }
+.event-details-banner-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(15,23,42,0.7) 0%, transparent 60%); }
+.event-details-banner-content { position: absolute; bottom: 24px; left: 24px; right: 24px; color: #fff; }
+.event-details-title { font-family: var(--font-display); font-size: 28px; font-weight: 800; line-height: 1.2; margin-bottom: 10px; }
+.event-desc-block { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+.block-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 14px; }
+.event-info-list { display: flex; flex-direction: column; gap: 12px; }
+.event-info-row { display: flex; gap: 12px; align-items: flex-start; }
+.event-info-icon { width: 36px; height: 36px; border-radius: var(--radius-sm); background: rgba(79,70,229,0.08); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.event-info-text-label { font-size: 11px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.event-info-text-val { font-size: 14px; font-weight: 600; }
+.sidebar-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px; }
+.countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; text-align: center; }
+.countdown-item { background: var(--bg-2); border-radius: var(--radius-sm); padding: 10px 4px; }
+.countdown-num { font-family: var(--font-display); font-size: 24px; font-weight: 800; color: var(--primary); }
+.countdown-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); margin-top: 2px; }
+.speakers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.speaker-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; background: var(--bg-2); border-radius: var(--radius-md); padding: 16px; }
+.speaker-name { font-weight: 600; font-size: 13px; }
+.speaker-title { font-size: 11px; color: var(--text-3); }
+
+/* ===== QR ATTENDANCE ===== */
+.qr-layout { min-height: calc(100vh - 56px); background: linear-gradient(135deg, #0F172A, #1E1B4B); display: grid; grid-template-columns: 1fr 400px; }
+.qr-main { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; }
+.qr-title { font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #fff; text-align: center; margin-bottom: 8px; }
+.qr-subtitle { font-size: 14px; color: rgba(255,255,255,0.5); text-align: center; margin-bottom: 40px; }
+.qr-scanner-area { width: 320px; height: 320px; border-radius: var(--radius-xl); background: rgba(255,255,255,0.05); border: 2px solid rgba(79,70,229,0.5); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; animation: glow 3s ease-in-out infinite; }
+.qr-scanline { position: absolute; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--primary), transparent); animation: scanline 2s linear infinite; }
+.qr-corners::before, .qr-corners::after { content: ''; position: absolute; width: 40px; height: 40px; border-color: var(--primary); border-style: solid; }
+.qr-corners::before { top: 16px; left: 16px; border-width: 3px 0 0 3px; }
+.qr-corners::after { bottom: 16px; right: 16px; border-width: 0 3px 3px 0; }
+.qr-placeholder { text-align: center; color: rgba(255,255,255,0.3); }
+.qr-placeholder-icon { font-size: 64px; display: block; margin-bottom: 12px; }
+.qr-placeholder-text { font-size: 14px; }
+.qr-controls { display: flex; gap: 12px; margin-top: 24px; }
+.qr-sidebar { background: rgba(255,255,255,0.04); border-left: 1px solid rgba(255,255,255,0.08); padding: 28px; display: flex; flex-direction: column; gap: 20px; overflow-y: auto; }
+.qr-participant-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-xl); padding: 24px; }
+.qr-participant-name { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.qr-participant-info { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 16px; }
+.qr-status { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600; }
+.qr-status.present { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.25); }
+.qr-status.not-found { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.25); }
+.qr-checkins-title { font-family: var(--font-display); font-weight: 700; color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 12px; }
+.checkin-item { background: rgba(255,255,255,0.04); border-radius: var(--radius-md); padding: 10px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.06); }
+.checkin-name { font-size: 13px; color: rgba(255,255,255,0.8); font-weight: 500; }
+.checkin-time { font-size: 11px; color: rgba(255,255,255,0.3); }
+.checkin-status { margin-left: auto; width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+
+/* ===== CERTIFICATE PAGE ===== */
+.cert-page { padding: 24px 32px; }
+.cert-search-row { display: flex; gap: 12px; margin-bottom: 24px; }
+.cert-gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.cert-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-xl); overflow: hidden; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.cert-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-xl); }
+.cert-preview { height: 180px; position: relative; display: flex; align-items: center; justify-content: center; }
+.cert-border { position: absolute; inset: 8px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; }
+.cert-preview-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: #fff; text-align: center; padding: 16px; }
+.cert-body { padding: 16px; }
+.cert-event-name { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+.cert-meta { font-size: 12px; color: var(--text-3); margin-bottom: 14px; }
+.cert-footer { display: flex; align-items: center; justify-content: space-between; }
+.cert-verify { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--success); font-weight: 600; }
+
+/* ===== FEEDBACK ===== */
+.feedback-page { padding: 24px 32px; }
+.feedback-layout { display: grid; grid-template-columns: 1fr 320px; gap: 20px; }
+.star-rating { display: flex; gap: 6px; }
+.star { font-size: 28px; cursor: pointer; transition: transform 0.1s; color: #D1D5DB; }
+.star.filled { color: var(--warning); }
+.star:hover { transform: scale(1.2); }
+.review-cards { display: flex; flex-direction: column; gap: 14px; }
+.review-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+.review-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.review-author { display: flex; align-items: center; gap: 10px; }
+.review-name { font-weight: 600; font-size: 14px; }
+.review-date { font-size: 11px; color: var(--text-3); }
+.review-stars { display: flex; gap: 2px; font-size: 13px; }
+.review-text { font-size: 14px; color: var(--text-2); line-height: 1.6; }
+.rating-summary-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+.rating-big { font-family: var(--font-display); font-size: 56px; font-weight: 800; color: var(--warning); line-height: 1; }
+.rating-stars-display { display: flex; gap: 4px; font-size: 20px; color: var(--warning); margin: 8px 0; }
+.rating-count { font-size: 13px; color: var(--text-3); margin-bottom: 20px; }
+.rating-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.rating-bar-label { font-size: 12px; width: 12px; text-align: right; }
+.rating-bar-track { flex: 1; height: 6px; background: var(--bg-2); border-radius: 3px; overflow: hidden; }
+.rating-bar-fill { height: 100%; background: var(--warning); border-radius: 3px; }
+.rating-bar-count { font-size: 11px; color: var(--text-3); width: 24px; }
+
+/* ===== NOTIFICATIONS ===== */
+.notif-page { padding: 24px 32px; max-width: 800px; }
+.notif-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.notif-group-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-3); padding: 0 16px; margin-bottom: 8px; }
+.notif-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; display: flex; gap: 14px; margin-bottom: 8px; transition: all 0.2s; cursor: pointer; }
+.notif-item:hover { border-color: rgba(79,70,229,0.2); background: rgba(79,70,229,0.01); }
+.notif-item.unread { border-left: 3px solid var(--primary); }
+.notif-icon-wrap { width: 40px; height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.notif-body { flex: 1; }
+.notif-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+.notif-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.notif-time { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; margin-top: 6px; }
+
+/* ===== PROFILE ===== */
+.profile-page { padding: 24px 32px; max-width: 900px; }
+.profile-header-card { background: linear-gradient(135deg, var(--primary), #6366F1, var(--cyan)); border-radius: var(--radius-xl); padding: 40px; margin-bottom: 20px; position: relative; overflow: hidden; }
+.profile-header-blob { position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,0.08); }
+.profile-header-inner { display: flex; align-items: center; gap: 24px; position: relative; z-index: 1; }
+.profile-avatar { width: 80px; height: 80px; border-radius: 20px; background: rgba(255,255,255,0.2); border: 3px solid rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.profile-name { font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #fff; }
+.profile-role { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+.profile-badges { display: flex; gap: 8px; margin-top: 10px; }
+.profile-badge { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-full); padding: 4px 12px; font-size: 12px; color: #fff; }
+.profile-edit-btn { margin-left: auto; }
+.settings-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+.settings-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(226,232,240,0.6); }
+.settings-row:last-child { border-bottom: none; }
+.settings-label { font-size: 14px; font-weight: 500; }
+.settings-desc { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+.toggle { width: 44px; height: 24px; border-radius: 12px; background: var(--border); position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+.toggle.on { background: var(--primary); }
+.toggle::after { content: ''; width: 18px; height: 18px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle.on::after { left: 23px; }
+
+/* ===== VOLUNTEER DASHBOARD ===== */
+.volunteer-tasks { display: flex; flex-direction: column; gap: 10px; }
+.task-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; }
+.task-item:hover { border-color: rgba(79,70,229,0.2); }
+.task-checkbox { width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
+.task-checkbox.done { background: var(--success); border-color: var(--success); color: #fff; font-size: 11px; }
+.task-text { font-size: 13px; font-weight: 500; }
+.task-text.done { text-decoration: line-through; color: var(--text-3); }
+.task-time { margin-left: auto; font-size: 12px; color: var(--text-3); }
+
+/* ===== COMPONENT SHOWCASE ===== */
+.component-page { padding: 24px 32px; }
+.component-section { margin-bottom: 40px; }
+.component-section-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); }
+.component-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px; }
+.select-wrapper { position: relative; }
+.custom-select { appearance: none; padding: 10px 36px 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 14px; background: var(--card); cursor: pointer; outline: none; min-width: 160px; font-family: var(--font-body); }
+.pagination { display: flex; align-items: center; gap: 4px; }
+.page-btn { width: 36px; height: 36px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text-2); transition: all 0.2s; }
+.page-btn:hover { border-color: var(--primary); color: var(--primary); }
+.page-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.alert { padding: 14px 16px; border-radius: var(--radius-md); border: 1px solid; display: flex; align-items: flex-start; gap: 10px; font-size: 14px; }
+.alert-info { background: rgba(79,70,229,0.05); border-color: rgba(79,70,229,0.2); color: var(--primary); }
+.alert-success { background: rgba(16,185,129,0.05); border-color: rgba(16,185,129,0.2); color: var(--success); }
+.alert-warning { background: rgba(245,158,11,0.05); border-color: rgba(245,158,11,0.2); color: var(--warning); }
+.alert-danger { background: rgba(239,68,68,0.05); border-color: rgba(239,68,68,0.2); color: var(--danger); }
+.skeleton-demo { display: flex; flex-direction: column; gap: 10px; max-width: 300px; }
+.skel-line { height: 14px; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .charts-row { grid-template-columns: 1fr; }
+  .content-row { grid-template-columns: 1fr; }
+  .events-grid { grid-template-columns: 1fr 1fr; }
+  .cert-gallery { grid-template-columns: 1fr 1fr; }
+  .features-grid { grid-template-columns: 1fr 1fr; }
+  .landing-hero { grid-template-columns: 1fr; gap: 40px; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 640px) {
+  .dashboard-layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .events-grid { grid-template-columns: 1fr; }
+  .cert-gallery { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .auth-layout { grid-template-columns: 1fr; }
+  .auth-visual { display: none; }
+  .main-content { padding: 16px; }
+  .landing-hero { padding: 40px 20px; }
+  .landing-features { padding: 40px 20px; }
+  .carousel-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .qr-layout { grid-template-columns: 1fr; }
+  .qr-sidebar { display: none; }
+  .event-details-layout { grid-template-columns: 1fr; }
+}
+
+/* Mobile bottom nav */
+.mobile-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); z-index: 100; padding: 8px 0 max(8px, env(safe-area-inset-bottom)); }
+.mobile-nav-inner { display: flex; justify-content: space-around; }
+.mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 12px; border-radius: var(--radius-md); cursor: pointer; color: var(--text-3); transition: color 0.2s; }
+.mobile-nav-item.active { color: var(--primary); }
+.mobile-nav-icon { font-size: 20px; }
+.mobile-nav-label { font-size: 10px; font-weight: 500; }
+@media (max-width: 640px) { .mobile-nav { display: flex; } }
+
+/* Confetti */
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9000; }
+.confetti-piece { position: absolute; width: 8px; height: 8px; border-radius: 2px; animation: confetti-fall 1.5s ease-in forwards; }
+
+/* ADMIN SPECIFIC */
+.admin-charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.system-health { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.health-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; }
+.health-label { font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+.health-value { font-family: var(--font-display); font-size: 18px; font-weight: 800; }
+.health-bar { margin-top: 8px; }
+
+/* Smooth mini line chart */
+.mini-chart { height: 50px; display: flex; align-items: flex-end; gap: 3px; }
+.mini-bar { border-radius: 2px 2px 0 0; flex: 1; background: var(--primary); opacity: 0.2; transition: opacity 0.2s; }
+.mini-bar.highlight { opacity: 1; }
+
+/* event creation page */
+.creation-layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; padding: 24px 32px; }
+.form-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 16px; }
+.form-section-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.form-section-icon { width: 32px; height: 32px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+.upload-zone { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 40px 20px; text-align: center; cursor: pointer; transition: all 0.2s; }
+.upload-zone:hover { border-color: var(--primary); background: rgba(79,70,229,0.02); }
+.preview-card { position: sticky; top: 120px; }
+.preview-event-banner { height: 160px; border-radius: var(--radius-lg) var(--radius-lg) 0 0; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+.preview-body { background: var(--card); border: 1px solid var(--border); border-radius: 0 0 var(--radius-lg) var(--radius-lg); border-top: none; padding: 16px; }
+.sticky-save { position: sticky; bottom: 16px; margin-top: 16px; }
+
+/* INLINE SVG CHARTS */
+svg.chart { overflow: visible; }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP PAGE NAV ===== -->
+<nav class="page-nav">
+  <div class="page-nav-logo">⬡ <span>Event</span>Sphere</div>
+  <div class="page-nav-tabs" id="mainTabs">
+    <button class="nav-tab active" onclick="showPage('landing')">🏠 Landing</button>
+    <button class="nav-tab" onclick="showPage('login')">🔐 Login</button>
+    <button class="nav-tab" onclick="showPage('register')">📝 Register</button>
+    <button class="nav-tab" onclick="showPage('student')">🎓 Student</button>
+    <button class="nav-tab" onclick="showPage('events')">📅 Events</button>
+    <button class="nav-tab" onclick="showPage('eventdetail')">🔍 Event Detail</button>
+    <button class="nav-tab" onclick="showPage('organizer')">📊 Organizer</button>
+    <button class="nav-tab" onclick="showPage('create')">✏️ Create Event</button>
+    <button class="nav-tab" onclick="showPage('volunteer')">🤝 Volunteer</button>
+    <button class="nav-tab" onclick="showPage('qr')">📷 QR Scanner</button>
+    <button class="nav-tab" onclick="showPage('certificates')">🏆 Certificates</button>
+    <button class="nav-tab" onclick="showPage('feedback')">⭐ Feedback</button>
+    <button class="nav-tab" onclick="showPage('admin')">⚙️ Admin</button>
+    <button class="nav-tab" onclick="showPage('profile')">👤 Profile</button>
+    <button class="nav-tab" onclick="showPage('notifications')">🔔 Notifications</button>
+    <button class="nav-tab" onclick="showPage('components')">🧩 Components</button>
+  </div>
+</nav>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- CONFETTI CONTAINER -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- ============================== -->
+<!-- ===== 1. LANDING PAGE ===== -->
+<!-- ============================== -->
+<div class="section active" id="page-landing">
+  <!-- Nav -->
+  <nav class="landing-nav">
+    <div class="landing-logo">Event<span class="landing-logo-dot">Sphere</span></div>
+    <div class="landing-nav-links">
+      <a class="landing-nav-link" href="#">Features</a>
+      <a class="landing-nav-link" href="#">Events</a>
+      <a class="landing-nav-link" href="#">For Colleges</a>
+      <a class="landing-nav-link" href="#">Pricing</a>
+      <div style="width:1px;height:20px;background:var(--border);margin:0 4px;"></div>
+      <button class="btn btn-ghost btn-sm" onclick="showPage('login')">Sign In</button>
+      <button class="btn btn-primary btn-sm" onclick="showPage('register')">Get Started</button>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="landing-hero">
+    <div class="fade-up">
+      <div class="landing-hero-eyebrow">🎓 Built for colleges &amp; universities</div>
+      <h1 class="landing-hero-title">Manage Campus <span class="gradient">Events</span> Effortlessly</h1>
+      <p class="landing-hero-desc">The all-in-one platform for organizing, registering, and tracking college events. From hackathons to cultural fests — EventSphere handles it all.</p>
+      <div class="landing-hero-btns">
+        <button class="btn btn-primary btn-lg" onclick="showPage('events')">🗓 Explore Events</button>
+        <button class="btn btn-secondary btn-lg" onclick="showPage('create')">✨ Organize Event</button>
+      </div>
+      <div style="display:flex;gap:24px;margin-top:32px;">
+        <div><div style="font-family:var(--font-display);font-weight:800;font-size:20px;color:var(--primary)">1,200+</div><div style="font-size:12px;color:var(--text-2)">Events Hosted</div></div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div><div style="font-family:var(--font-display);font-weight:800;font-size:20px;color:var(--cyan)">48K+</div><div style="font-size:12px;color:var(--text-2)">Participants</div></div>
+        <div style="width:1px;background:var(--border);"></div>
+        <div><div style="font-family:var(--font-display);font-weight:800;font-size:20px;color:var(--success)">320</div><div style="font-size:12px;color:var(--text-2)">Colleges</div></div>
+      </div>
+    </div>
+    <div class="landing-hero-visual fade-up" style="animation-delay:0.1s">
+      <div class="hero-main-visual">
+        <div class="hero-blob"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;position:relative;z-index:1;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--danger);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--warning);"></div>
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--success);"></div>
+          <div style="flex:1;height:1px;background:rgba(15,23,42,0.08);"></div>
+        </div>
+        <div style="font-size:60px;text-align:center;margin:20px 0;position:relative;z-index:1;">🎪</div>
+        <div style="font-family:var(--font-display);font-size:18px;font-weight:800;text-align:center;margin-bottom:4px;position:relative;z-index:1;">National Tech Symposium 2025</div>
+        <div style="font-size:12px;color:var(--text-2);text-align:center;margin-bottom:16px;position:relative;z-index:1;">IIT Bombay · Jan 28–30</div>
+        <div style="background:rgba(79,70,229,0.08);border-radius:var(--radius-sm);padding:8px 12px;display:flex;justify-content:space-between;margin-bottom:4px;position:relative;z-index:1;">
+          <span style="font-size:12px;color:var(--text-2)">Registered</span>
+          <span style="font-size:12px;font-weight:700;color:var(--primary)">2,847 / 3,000</span>
+        </div>
+        <div class="progress" style="margin-bottom:12px;position:relative;z-index:1;"><div class="progress-bar" style="width:95%"></div></div>
+        <button class="btn btn-primary" style="width:100%;position:relative;z-index:1;" onclick="fireConfetti()">🎉 Register Now</button>
+        <div class="hero-stats-grid" style="position:relative;z-index:1;">
+          <div class="hero-stat"><div class="hero-stat-num">48</div><div class="hero-stat-label">Speakers</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">12</div><div class="hero-stat-label">Workshops</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">Days</div></div>
+          <div class="hero-stat"><div class="hero-stat-num">₹0</div><div class="hero-stat-label">Free Entry</div></div>
+        </div>
+      </div>
+
+      <!-- Floating cards -->
+      <div style="position:absolute;top:-20px;right:-20px;z-index:2;">
+        <div class="hero-card-float" style="min-width:160px;">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:4px;">Live Check-ins</div>
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--success)">+147</div>
+          <div style="font-size:10px;color:var(--success)">● Active now</div>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:-16px;left:-20px;z-index:2;">
+        <div class="hero-card-float" style="min-width:180px;animation-delay:-2s;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="font-size:24px;">🏆</div>
+            <div>
+              <div style="font-size:12px;font-weight:600;">Certificate Ready</div>
+              <div style="font-size:11px;color:var(--text-3);">Download instantly</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Banner -->
+  <div class="landing-stats">
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-num">1,200+</div><div class="stat-label">Total Events</div></div>
+      <div class="stat-item"><div class="stat-num">48,000+</div><div class="stat-label">Participants</div></div>
+      <div class="stat-item"><div class="stat-num">320</div><div class="stat-label">Active Colleges</div></div>
+      <div class="stat-item"><div class="stat-num">95,000+</div><div class="stat-label">Certificates Issued</div></div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="landing-features">
+    <div class="section-header">
+      <div class="section-eyebrow">Platform Features</div>
+      <h2 class="section-title">Everything you need to run great events</h2>
+      <p class="section-desc">Purpose-built for colleges. From registration to certificates in one seamless platform.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <div class="feature-icon" style="background:rgba(79,70,229,0.1);">📱</div>
+        <div class="feature-title">QR Attendance</div>
+        <div class="feature-desc">Instant check-in with QR codes. Real-time attendance tracking with live feeds and automatic logs.</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.05s">
+        <div class="feature-icon" style="background:rgba(6,182,212,0.1);">🎟</div>
+        <div class="feature-title">Smart Registration</div>
+        <div class="feature-desc">Custom forms, capacity management, waitlists, and automated confirmation emails.</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.1s">
+        <div class="feature-icon" style="background:rgba(16,185,129,0.1);">🤝</div>
+        <div class="feature-title">Volunteer Management</div>
+        <div class="feature-desc">Assign roles, manage schedules, and track volunteer contributions across all events.</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.15s">
+        <div class="feature-icon" style="background:rgba(245,158,11,0.1);">🏆</div>
+        <div class="feature-title">Digital Certificates</div>
+        <div class="feature-desc">Auto-generate verified certificates with unique QR codes. Instant download and sharing.</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.2s">
+        <div class="feature-icon" style="background:rgba(239,68,68,0.1);">📈</div>
+        <div class="feature-title">Analytics Dashboard</div>
+        <div class="feature-desc">Deep insights on registrations, attendance rates, feedback scores, and event trends.</div>
+      </div>
+      <div class="feature-card fade-up" style="animation-delay:0.25s">
+        <div class="feature-icon" style="background:rgba(79,70,229,0.1);">🔔</div>
+        <div class="feature-title">Smart Notifications</div>
+        <div class="feature-desc">Automated reminders, updates, and announcements via email and in-app notifications.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Events Carousel -->
+  <div class="events-carousel">
+    <div style="max-width:1200px;margin:0 auto;">
+      <div class="section-header" style="text-align:left;margin-bottom:32px;">
+        <div class="section-eyebrow">Upcoming Events</div>
+        <h2 class="section-title" style="font-size:28px;">Don't miss out</h2>
+      </div>
+      <div class="carousel-grid">
+        <div class="event-card">
+          <div class="event-banner" style="background:linear-gradient(135deg,#312E81,#4F46E5);">
+            <div class="event-banner-overlay"></div>
+            <div class="event-banner-badge"><span class="badge badge-success badge-dot">Open</span></div>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;">
+              <div style="font-size:28px;margin-bottom:4px;">💻</div>
+            </div>
+          </div>
+          <div class="event-body">
+            <div class="event-title">National Hackathon 2025</div>
+            <div class="event-meta">
+              <div class="event-meta-item">📅 Jan 15–16, 2025</div>
+              <div class="event-meta-item">📍 BITS Pilani, Rajasthan</div>
+            </div>
+            <div class="event-footer">
+              <div class="event-seats"><span style="color:var(--danger);font-weight:600;">87 seats left</span></div>
+              <button class="btn btn-primary btn-sm" onclick="fireConfetti()">Register</button>
+            </div>
+          </div>
+        </div>
+        <div class="event-card">
+          <div class="event-banner" style="background:linear-gradient(135deg,#0E7490,#06B6D4);">
+            <div class="event-banner-overlay"></div>
+            <div class="event-banner-badge"><span class="badge badge-warning badge-dot">Filling Fast</span></div>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;">
+              <div style="font-size:28px;margin-bottom:4px;">🎨</div>
+            </div>
+          </div>
+          <div class="event-body">
+            <div class="event-title">Design Conclave 2025</div>
+            <div class="event-meta">
+              <div class="event-meta-item">📅 Feb 3, 2025</div>
+              <div class="event-meta-item">📍 NID Ahmedabad, Gujarat</div>
+            </div>
+            <div class="event-footer">
+              <div class="event-seats"><span style="color:var(--warning);font-weight:600;">23 seats left</span></div>
+              <button class="btn btn-primary btn-sm" onclick="fireConfetti()">Register</button>
+            </div>
+          </div>
+        </div>
+        <div class="event-card">
+          <div class="event-banner" style="background:linear-gradient(135deg,#064E3B,#10B981);">
+            <div class="event-banner-overlay"></div>
+            <div class="event-banner-badge"><span class="badge badge-success badge-dot">Open</span></div>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;">
+              <div style="font-size:28px;margin-bottom:4px;">🎭</div>
+            </div>
+          </div>
+          <div class="event-body">
+            <div class="event-title">Cultural Fest — Resonance</div>
+            <div class="event-meta">
+              <div class="event-meta-item">📅 Mar 8–10, 2025</div>
+              <div class="event-meta-item">📍 Anna University, Chennai</div>
+            </div>
+            <div class="event-footer">
+              <div class="event-seats"><span style="color:var(--success);font-weight:600;">450 seats left</span></div>
+              <button class="btn btn-primary btn-sm" onclick="fireConfetti()">Register</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <div class="testimonials-section">
+    <div class="section-header">
+      <div class="section-eyebrow">Testimonials</div>
+      <h2 class="section-title">Loved by students &amp; organizers</h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"EventSphere transformed how we manage our annual tech fest. Registration, attendance, certificates — everything in one place. Saved us 40+ hours of manual work."</p>
+        <div class="testimonial-author">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+          <div><div class="testimonial-name">Arjun Sharma</div><div class="testimonial-role">Event Head, IIT Delhi</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"The QR attendance system is incredibly fast. What used to take 45 minutes of manual marking now happens in seconds. Our volunteers love it."</p>
+        <div class="testimonial-author">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--success),#34D399)">P</div>
+          <div><div class="testimonial-name">Priya Krishnan</div><div class="testimonial-role">Student Council, BITS Goa</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"Digital certificates with instant verification changed the game. Students can now share on LinkedIn immediately. The platform looks stunning too!"</p>
+        <div class="testimonial-author">
+          <div class="avatar" style="background:linear-gradient(135deg,var(--warning),#FBBF24)">R</div>
+          <div><div class="testimonial-name">Ravi Gupta</div><div class="testimonial-role">Dean of Students, NIT Trichy</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <div class="faq-inner">
+      <div class="section-header">
+        <div class="section-eyebrow">FAQ</div>
+        <h2 class="section-title" style="font-size:28px;">Common questions</h2>
+      </div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Is EventSphere free for students?</span><span>▼</span></div><div class="faq-a">Yes! Students can register and participate in events for free. Colleges and organizers have tiered plans based on the number of events and participants.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>How does QR attendance work?</span><span>▼</span></div><div class="faq-a">Each registered participant receives a unique QR code. Volunteers scan it using any device's camera, and attendance is logged instantly in real-time.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Are certificates verifiable?</span><span>▼</span></div><div class="faq-a">All certificates have a unique verification ID and QR code. Anyone can verify authenticity instantly at verify.eventsphere.io without any login.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)"><span>Can we integrate with our college portal?</span><span>▼</span></div><div class="faq-a">Yes! We offer REST APIs, webhooks, and SSO integration with most major college ERP systems including SAP, Ellucian, and custom systems.</div></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="landing-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand-name">⬡ EventSphere</div>
+        <div class="footer-brand-desc">The premium event management platform built specifically for India's colleges and universities.</div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.15);">🐦 Twitter</button>
+          <button class="btn btn-secondary btn-sm" style="background:rgba(255,255,255,0.1);color:#fff;border-color:rgba(255,255,255,0.15);">💼 LinkedIn</button>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Product</div>
+        <a class="footer-link">Features</a><a class="footer-link">Pricing</a><a class="footer-link">Analytics</a><a class="footer-link">Certificates</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Company</div>
+        <a class="footer-link">About Us</a><a class="footer-link">Blog</a><a class="footer-link">Careers</a><a class="footer-link">Press</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Support</div>
+        <a class="footer-link">Help Center</a><a class="footer-link">Contact</a><a class="footer-link">Privacy</a><a class="footer-link">Terms</a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2025 EventSphere Technologies. All rights reserved.</div>
+  </footer>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 2. LOGIN PAGE ===== -->
+<!-- ============================== -->
+<div class="section" id="page-login">
+  <div class="auth-layout">
+    <div class="auth-visual">
+      <div class="auth-visual-blob" style="width:400px;height:400px;top:-200px;left:-100px;"></div>
+      <div class="auth-visual-blob" style="width:300px;height:300px;bottom:-100px;right:-50px;"></div>
+      <div class="auth-visual-card">
+        <div style="font-size:40px;text-align:center;margin-bottom:16px;">🎓</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;">
+            <div style="font-size:18px;">✅</div><div style="font-size:13px;color:rgba(255,255,255,0.8);">Registered for 3 events</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;">
+            <div style="font-size:18px;">🏆</div><div style="font-size:13px;color:rgba(255,255,255,0.8);">2 certificates earned</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border-radius:8px;padding:10px 12px;">
+            <div style="font-size:18px;">📊</div><div style="font-size:13px;color:rgba(255,255,255,0.8);">96% attendance rate</div>
+          </div>
+        </div>
+      </div>
+      <h2 class="auth-visual-title">Your campus life,<br>organized.</h2>
+      <p class="auth-visual-desc">Join 48,000+ students managing their college events with EventSphere.</p>
+    </div>
+    <div class="auth-panel">
+      <div class="auth-form">
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--primary);margin-bottom:32px;">⬡ EventSphere</div>
+        <h2 class="auth-form-title">Welcome back</h2>
+        <p class="auth-form-sub">Sign in to your EventSphere account</p>
+        <div class="auth-form-group">
+          <div class="form-group">
+            <label class="form-label">Email address</label>
+            <input class="form-input" type="email" placeholder="you@college.edu">
+          </div>
+        </div>
+        <div class="auth-form-group">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div style="position:relative;">
+              <input class="form-input" type="password" placeholder="••••••••" id="passwordInput">
+              <button onclick="togglePassword()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-3);">👁</button>
+            </div>
+          </div>
+        </div>
+        <div class="auth-options">
+          <label class="auth-check">
+            <input type="checkbox" style="width:16px;height:16px;accent-color:var(--primary);"> Remember me
+          </label>
+          <a class="auth-forgot">Forgot password?</a>
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:13px;" onclick="showPage('student');showToast('✅ Welcome back, Arjun!','success')">Sign In →</button>
+        <div class="auth-divider"><div class="auth-divider-line"></div><span class="auth-divider-text">or continue with</span><div class="auth-divider-line"></div></div>
+        <div class="auth-social">
+          <div class="auth-social-btn">🔵 Google</div>
+          <div class="auth-social-btn">🔷 Microsoft</div>
+        </div>
+        <div class="auth-link">Don't have an account? <a onclick="showPage('register')">Create one</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 3. REGISTER PAGE ===== -->
+<!-- ============================== -->
+<div class="section" id="page-register">
+  <div class="register-layout">
+    <div class="register-card">
+      <div class="register-logo">⬡ EventSphere</div>
+      <!-- Steps indicator -->
+      <div class="steps-indicator">
+        <div class="step-item">
+          <div class="step-circle active" id="sc1">1</div>
+          <div class="step-label active">Basic Info</div>
+        </div>
+        <div class="step-connector" id="conn1"></div>
+        <div class="step-item">
+          <div class="step-circle upcoming" id="sc2">2</div>
+          <div class="step-label" id="sl2">College Details</div>
+        </div>
+        <div class="step-connector" id="conn2"></div>
+        <div class="step-item">
+          <div class="step-circle upcoming" id="sc3">3</div>
+          <div class="step-label" id="sl3">Role Selection</div>
+        </div>
+      </div>
+
+      <!-- Step 1 -->
+      <div class="register-step active" id="step1">
+        <h2 class="step-title">Basic Information</h2>
+        <p class="step-subtitle">Let's start with your personal details</p>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input class="form-input" placeholder="Arjun"></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" placeholder="Sharma"></div>
+        </div>
+        <div class="form-full"><div class="form-group"><label class="form-label">Email Address</label><input class="form-input" type="email" placeholder="arjun@iitd.ac.in"></div></div>
+        <div class="form-full"><div class="form-group"><label class="form-label">Phone Number</label><input class="form-input" placeholder="+91 98765 43210"></div></div>
+        <div class="form-full"><div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" placeholder="Min. 8 characters"></div></div>
+        <div style="margin-top:24px;display:flex;justify-content:flex-end;">
+          <button class="btn btn-primary" onclick="goStep(2)">Next Step →</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="register-step" id="step2">
+        <h2 class="step-title">College Details</h2>
+        <p class="step-subtitle">Tell us about your institution</p>
+        <div class="form-full"><div class="form-group"><label class="form-label">College / University Name</label><input class="form-input" placeholder="Indian Institute of Technology Delhi"></div></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Department</label>
+            <select class="form-input"><option>Computer Science</option><option>Electronics</option><option>Mechanical</option><option>Civil</option><option>Management</option></select>
+          </div>
+          <div class="form-group"><label class="form-label">Year of Study</label>
+            <select class="form-input"><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>Postgraduate</option></select>
+          </div>
+        </div>
+        <div class="form-full"><div class="form-group"><label class="form-label">Student ID / Roll Number</label><input class="form-input" placeholder="2021CS1234"></div></div>
+        <div style="margin-top:24px;display:flex;justify-content:space-between;">
+          <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(3)">Next Step →</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="register-step" id="step3">
+        <h2 class="step-title">Select Your Role</h2>
+        <p class="step-subtitle">How will you primarily use EventSphere?</p>
+        <div class="role-cards">
+          <div class="role-card selected" onclick="selectRole(this)">
+            <div class="role-icon">🎓</div>
+            <div class="role-name">Student</div>
+            <div class="role-desc">Register for events, track attendance</div>
+            <div class="role-check">✓</div>
+          </div>
+          <div class="role-card" onclick="selectRole(this)">
+            <div class="role-icon">📋</div>
+            <div class="role-name">Organizer</div>
+            <div class="role-desc">Create and manage events</div>
+            <div class="role-check">✓</div>
+          </div>
+          <div class="role-card" onclick="selectRole(this)">
+            <div class="role-icon">🤝</div>
+            <div class="role-name">Volunteer</div>
+            <div class="role-desc">Help manage event operations</div>
+            <div class="role-check">✓</div>
+          </div>
+        </div>
+        <div style="margin-top:24px;display:flex;justify-content:space-between;align-items:center;">
+          <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
+          <button class="btn btn-primary btn-lg" onclick="showPage('student');showToast('🎉 Account created successfully!','success');fireConfetti()">Create Account 🎉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 4. STUDENT DASHBOARD ===== -->
+<!-- ============================== -->
+<div class="section" id="page-student">
+  <div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ <span>EventSphere</span></div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Main</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">🏠</span>Dashboard</div>
+        <div class="sidebar-link" onclick="showPage('events')"><span class="sidebar-icon">📅</span>Events<span class="sidebar-badge"><span class="badge badge-primary">12</span></span></div>
+        <div class="sidebar-link"><span class="sidebar-icon">✅</span>My Registrations</div>
+        <div class="sidebar-link" onclick="showPage('certificates')"><span class="sidebar-icon">🏆</span>Certificates</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Community</div>
+        <div class="sidebar-link"><span class="sidebar-icon">🗓</span>Calendar</div>
+        <div class="sidebar-link" onclick="showPage('feedback')"><span class="sidebar-icon">⭐</span>Feedback</div>
+        <div class="sidebar-link" onclick="showPage('notifications')"><span class="sidebar-icon">🔔</span>Notifications<span class="sidebar-badge"><span class="badge badge-danger">3</span></span></div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Account</div>
+        <div class="sidebar-link" onclick="showPage('profile')"><span class="sidebar-icon">👤</span>Profile</div>
+        <div class="sidebar-link"><span class="sidebar-icon">⚙️</span>Settings</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name">Arjun Sharma</div>
+          <div class="sidebar-user-role">Student · IIT Delhi</div>
+        </div>
+        <button class="btn btn-ghost btn-icon" style="font-size:16px;">⚙️</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">Good morning, Arjun 👋</div>
+          <div class="topbar-subtitle">Thursday, Jan 9, 2025 · IIT Delhi</div>
+        </div>
+        <div class="topbar-actions">
+          <div class="search-bar"><span style="color:var(--text-3)">🔍</span><input class="search-input" placeholder="Search events..."></div>
+          <button class="btn btn-icon btn-secondary" onclick="showPage('notifications')" style="position:relative;">🔔<span style="position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--danger);border-radius:50%;font-size:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;">3</span></button>
+          <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan));cursor:pointer;" onclick="showPage('profile')">A</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card primary">
+          <div class="stat-card-label">Registered Events</div>
+          <div class="stat-card-value">8</div>
+          <div class="stat-card-change up">↑ 2 this month</div>
+          <div class="stat-card-icon" style="background:rgba(79,70,229,0.1);">📅</div>
+        </div>
+        <div class="stat-card cyan">
+          <div class="stat-card-label">Upcoming Events</div>
+          <div class="stat-card-value">3</div>
+          <div class="stat-card-change up">↑ Next in 2 days</div>
+          <div class="stat-card-icon" style="background:rgba(6,182,212,0.1);">⏰</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-card-label">Certificates Earned</div>
+          <div class="stat-card-value">5</div>
+          <div class="stat-card-change up">↑ 1 this week</div>
+          <div class="stat-card-icon" style="background:rgba(16,185,129,0.1);">🏆</div>
+        </div>
+        <div class="stat-card warning">
+          <div class="stat-card-label">Attendance Rate</div>
+          <div class="stat-card-value">96%</div>
+          <div class="stat-card-change up">↑ Above average</div>
+          <div class="stat-card-icon" style="background:rgba(245,158,11,0.1);">✅</div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">Monthly Participation</div>
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--primary);"></div>Registered</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--cyan);"></div>Attended</div>
+            </div>
+          </div>
+          <div class="bar-chart">
+            <div class="bar-group"><div class="bar bar-primary" style="height:60px;"></div><div class="bar bar-cyan" style="height:55px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:80px;"></div><div class="bar bar-cyan" style="height:75px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:50px;"></div><div class="bar bar-cyan" style="height:45px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:110px;"></div><div class="bar bar-cyan" style="height:105px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:90px;"></div><div class="bar bar-cyan" style="height:88px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:130px;"></div><div class="bar bar-cyan" style="height:125px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:100px;"></div><div class="bar bar-cyan" style="height:98px;"></div></div>
+          </div>
+          <div class="bar-labels">
+            <div class="bar-label">Jul</div><div class="bar-label">Aug</div><div class="bar-label">Sep</div><div class="bar-label">Oct</div><div class="bar-label">Nov</div><div class="bar-label">Dec</div><div class="bar-label">Jan</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Event Categories</div></div>
+          <div class="donut-wrapper">
+            <div class="donut-chart">
+              <svg viewBox="0 0 120 120" width="140" height="140">
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#EEF2FF" stroke-width="18"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#4F46E5" stroke-width="18" stroke-dasharray="150 152" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#06B6D4" stroke-width="18" stroke-dasharray="75 227" stroke-dashoffset="-150" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#10B981" stroke-width="18" stroke-dasharray="50 252" stroke-dashoffset="-225" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#F59E0B" stroke-width="18" stroke-dasharray="27 275" stroke-dashoffset="-275" transform="rotate(-90 60 60)"/>
+              </svg>
+              <div class="donut-center"><div class="donut-value">8</div><div class="donut-label">Total</div></div>
+            </div>
+            <div class="donut-legend">
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--primary)"></span>Technical</span><span class="donut-legend-val">50%</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--cyan)"></span>Cultural</span><span class="donut-legend-val">25%</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--success)"></span>Sports</span><span class="donut-legend-val">17%</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--warning)"></span>Workshop</span><span class="donut-legend-val">9%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Row -->
+      <div class="content-row">
+        <!-- Upcoming Events -->
+        <div>
+          <div class="table-card">
+            <div class="table-header-row">
+              <div class="table-title">Upcoming Events</div>
+              <button class="btn btn-ghost btn-sm" onclick="showPage('events')">View All →</button>
+            </div>
+            <table>
+              <thead><tr><th>Event</th><th>Date</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><div class="event-name-cell"><div class="event-dot" style="background:var(--primary)"></div>National Hackathon</div></td>
+                  <td style="color:var(--text-2)">Jan 15</td>
+                  <td><span class="badge badge-success badge-dot">Registered</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td><div class="event-name-cell"><div class="event-dot" style="background:var(--cyan)"></div>Design Conclave</div></td>
+                  <td style="color:var(--text-2)">Feb 3</td>
+                  <td><span class="badge badge-warning badge-dot">Pending</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+                <tr>
+                  <td><div class="event-name-cell"><div class="event-dot" style="background:var(--success)"></div>Cultural Fest</div></td>
+                  <td style="color:var(--text-2)">Mar 8</td>
+                  <td><span class="badge badge-success badge-dot">Registered</span></td>
+                  <td><button class="btn btn-ghost btn-sm">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Quick Actions + Timeline -->
+        <div>
+          <div class="chart-card" style="margin-bottom:16px;">
+            <div class="chart-title" style="margin-bottom:16px;">Quick Actions</div>
+            <div class="quick-actions">
+              <div class="quick-action" onclick="showPage('events')">
+                <div class="quick-action-icon" style="background:rgba(79,70,229,0.1);">🎟</div>
+                <div class="quick-action-title">Register Event</div>
+                <div class="quick-action-desc">Browse &amp; join events</div>
+              </div>
+              <div class="quick-action" onclick="showPage('certificates')">
+                <div class="quick-action-icon" style="background:rgba(16,185,129,0.1);">🏆</div>
+                <div class="quick-action-title">Certificates</div>
+                <div class="quick-action-desc">Download your certificates</div>
+              </div>
+              <div class="quick-action" onclick="showPage('profile')">
+                <div class="quick-action-icon" style="background:rgba(245,158,11,0.1);">👤</div>
+                <div class="quick-action-title">Update Profile</div>
+                <div class="quick-action-desc">Edit your details</div>
+              </div>
+              <div class="quick-action" onclick="showPage('feedback')">
+                <div class="quick-action-icon" style="background:rgba(239,68,68,0.1);">⭐</div>
+                <div class="quick-action-title">Give Feedback</div>
+                <div class="quick-action-desc">Rate your experience</div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title" style="margin-bottom:16px;">Recent Activity</div>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-dot" style="background:rgba(79,70,229,0.1);font-size:14px;">🎟</div>
+                <div class="timeline-body"><div class="timeline-event">Registered for National Hackathon</div><div class="timeline-time">2 hours ago</div></div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot" style="background:rgba(16,185,129,0.1);font-size:14px;">🏆</div>
+                <div class="timeline-body"><div class="timeline-event">Certificate issued for Data Science Workshop</div><div class="timeline-time">1 day ago</div></div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot" style="background:rgba(245,158,11,0.1);font-size:14px;">✅</div>
+                <div class="timeline-body"><div class="timeline-event">Attended Cloud Computing Seminar</div><div class="timeline-time">3 days ago</div></div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-dot" style="background:rgba(6,182,212,0.1);font-size:14px;">⭐</div>
+                <div class="timeline-body"><div class="timeline-event">Submitted feedback for Tech Expo</div><div class="timeline-time">5 days ago</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Bottom Nav -->
+  <div class="mobile-nav">
+    <div class="mobile-nav-inner">
+      <div class="mobile-nav-item active"><div class="mobile-nav-icon">🏠</div><div class="mobile-nav-label">Home</div></div>
+      <div class="mobile-nav-item" onclick="showPage('events')"><div class="mobile-nav-icon">📅</div><div class="mobile-nav-label">Events</div></div>
+      <div class="mobile-nav-item" onclick="showPage('certificates')"><div class="mobile-nav-icon">🏆</div><div class="mobile-nav-label">Certs</div></div>
+      <div class="mobile-nav-item" onclick="showPage('notifications')"><div class="mobile-nav-icon">🔔</div><div class="mobile-nav-label">Alerts</div></div>
+      <div class="mobile-nav-item" onclick="showPage('profile')"><div class="mobile-nav-icon">👤</div><div class="mobile-nav-label">Profile</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 5. EVENTS LISTING ===== -->
+<!-- ============================== -->
+<div class="section" id="page-events">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-link" onclick="showPage('student')"><span class="sidebar-icon">🏠</span>Dashboard</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">📅</span>Events</div>
+        <div class="sidebar-link" onclick="showPage('certificates')"><span class="sidebar-icon">🏆</span>Certificates</div>
+        <div class="sidebar-link" onclick="showPage('notifications')"><span class="sidebar-icon">🔔</span>Notifications</div>
+        <div class="sidebar-link" onclick="showPage('profile')"><span class="sidebar-icon">👤</span>Profile</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Arjun Sharma</div><div class="sidebar-user-role">Student · IIT Delhi</div></div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="topbar">
+        <div><div class="topbar-title">Browse Events</div><div class="topbar-subtitle">Discover and register for upcoming events</div></div>
+        <div class="topbar-actions">
+          <div class="search-bar"><span style="color:var(--text-3)">🔍</span><input class="search-input" placeholder="Search events..."></div>
+        </div>
+      </div>
+      <!-- Filters -->
+      <div class="filter-bar">
+        <select class="filter-select"><option>All Categories</option><option>Technical</option><option>Cultural</option><option>Sports</option><option>Workshop</option></select>
+        <select class="filter-select"><option>All Departments</option><option>CSE</option><option>ECE</option><option>MBA</option></select>
+        <select class="filter-select"><option>Any Date</option><option>This Week</option><option>This Month</option><option>Next Month</option></select>
+        <select class="filter-select"><option>All Status</option><option>Open</option><option>Filling Fast</option><option>Closed</option></select>
+        <div class="tabs" style="margin-left:auto;">
+          <div class="tab-item active">Grid</div>
+          <div class="tab-item">List</div>
+        </div>
+      </div>
+      <div class="events-grid">
+        <!-- Event Cards -->
+        <div class="event-card-full" onclick="showPage('eventdetail')">
+          <div class="event-card-banner" style="background:linear-gradient(135deg,#1E1B4B,#4F46E5);">
+            <div class="event-card-banner-bg">💻</div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="badge badge-success badge-dot">Open</span></div>
+            <div style="position:absolute;top:12px;right:12px;background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:4px 10px;font-size:11px;color:#fff;font-weight:600;">FREE</div>
+          </div>
+          <div class="event-card-body">
+            <div class="event-card-category"><span class="badge badge-primary">Technical</span></div>
+            <div class="event-card-title">National Hackathon 2025</div>
+            <div class="event-card-info">
+              <div class="event-card-info-row">📅 January 15–16, 2025</div>
+              <div class="event-card-info-row">📍 BITS Pilani, Rajasthan</div>
+              <div class="event-card-info-row">👥 1,247 / 1,500 registered</div>
+            </div>
+            <div style="margin-bottom:14px;"><div class="progress"><div class="progress-bar" style="width:83%"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;"><span style="color:var(--text-3)">83% filled</span><span style="color:var(--danger);font-weight:600;">253 left</span></div></div>
+            <div class="event-card-footer">
+              <div style="font-size:13px;color:var(--text-2)">⏱ Closes Jan 12</div>
+              <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();fireConfetti()">Register Now</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-card-full">
+          <div class="event-card-banner" style="background:linear-gradient(135deg,#0E7490,#06B6D4);">
+            <div class="event-card-banner-bg">🎨</div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="badge badge-warning badge-dot">Filling Fast</span></div>
+          </div>
+          <div class="event-card-body">
+            <div class="event-card-category"><span class="badge badge-cyan">Design</span></div>
+            <div class="event-card-title">Design Conclave 2025</div>
+            <div class="event-card-info">
+              <div class="event-card-info-row">📅 February 3, 2025</div>
+              <div class="event-card-info-row">📍 NID Ahmedabad, Gujarat</div>
+              <div class="event-card-info-row">👥 477 / 500 registered</div>
+            </div>
+            <div style="margin-bottom:14px;"><div class="progress"><div class="progress-bar" style="width:95%;background:linear-gradient(90deg,var(--warning),#FBBF24)"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;"><span style="color:var(--text-3)">95% filled</span><span style="color:var(--warning);font-weight:600;">23 left</span></div></div>
+            <div class="event-card-footer">
+              <div style="font-size:13px;color:var(--text-2)">₹ 199 entry</div>
+              <button class="btn btn-primary btn-sm" onclick="fireConfetti()">Register</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-card-full">
+          <div class="event-card-banner" style="background:linear-gradient(135deg,#064E3B,#10B981);">
+            <div class="event-card-banner-bg">🎭</div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="badge badge-success badge-dot">Open</span></div>
+          </div>
+          <div class="event-card-body">
+            <div class="event-card-category"><span class="badge badge-success">Cultural</span></div>
+            <div class="event-card-title">Cultural Fest — Resonance</div>
+            <div class="event-card-info">
+              <div class="event-card-info-row">📅 March 8–10, 2025</div>
+              <div class="event-card-info-row">📍 Anna University, Chennai</div>
+              <div class="event-card-info-row">👥 850 / 3,000 registered</div>
+            </div>
+            <div style="margin-bottom:14px;"><div class="progress"><div class="progress-bar" style="width:28%;background:linear-gradient(90deg,var(--success),#34D399)"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;"><span style="color:var(--text-3)">28% filled</span><span style="color:var(--success);font-weight:600;">2,150 left</span></div></div>
+            <div class="event-card-footer">
+              <div style="font-size:13px;color:var(--text-2)">FREE · All welcome</div>
+              <button class="btn btn-primary btn-sm" onclick="fireConfetti()">Register</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-card-full">
+          <div class="event-card-banner" style="background:linear-gradient(135deg,#7C3AED,#A78BFA);">
+            <div class="event-card-banner-bg">🤖</div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="badge badge-success badge-dot">Open</span></div>
+          </div>
+          <div class="event-card-body">
+            <div class="event-card-category"><span class="badge badge-primary">AI / ML</span></div>
+            <div class="event-card-title">AI Summit India 2025</div>
+            <div class="event-card-info">
+              <div class="event-card-info-row">📅 April 20, 2025</div>
+              <div class="event-card-info-row">📍 IISc Bangalore, Karnataka</div>
+              <div class="event-card-info-row">👥 423 / 800 registered</div>
+            </div>
+            <div style="margin-bottom:14px;"><div class="progress"><div class="progress-bar" style="width:53%"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;"><span style="color:var(--text-3)">53% filled</span><span style="color:var(--success);font-weight:600;">377 left</span></div></div>
+            <div class="event-card-footer">
+              <div style="font-size:13px;color:var(--text-2)">₹ 499 entry</div>
+              <button class="btn btn-primary btn-sm" onclick="fireConfetti()">Register</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-card-full">
+          <div class="event-card-banner" style="background:linear-gradient(135deg,#92400E,#F59E0B);">
+            <div class="event-card-banner-bg">🏃</div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="badge badge-success badge-dot">Open</span></div>
+          </div>
+          <div class="event-card-body">
+            <div class="event-card-category"><span class="badge badge-warning">Sports</span></div>
+            <div class="event-card-title">Inter-College Sports Meet</div>
+            <div class="event-card-info">
+              <div class="event-card-info-row">📅 March 22–24, 2025</div>
+              <div class="event-card-info-row">📍 Delhi University Sports Complex</div>
+              <div class="event-card-info-row">👥 312 / 600 registered</div>
+            </div>
+            <div style="margin-bottom:14px;"><div class="progress"><div class="progress-bar" style="width:52%;background:linear-gradient(90deg,var(--warning),#FBBF24)"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;"><span style="color:var(--text-3)">52% filled</span><span style="color:var(--success);font-weight:600;">288 left</span></div></div>
+            <div class="event-card-footer">
+              <div style="font-size:13px;color:var(--text-2)">FREE entry</div>
+              <button class="btn btn-primary btn-sm" onclick="fireConfetti()">Register</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="event-card-full">
+          <div class="event-card-banner" style="background:linear-gradient(135deg,#831843,#EC4899);">
+            <div class="event-card-banner-bg">📸</div>
+            <div style="position:absolute;top:12px;left:12px;"><span class="badge badge-danger badge-dot">Last Day</span></div>
+          </div>
+          <div class="event-card-body">
+            <div class="event-card-category"><span class="badge badge-danger">Workshop</span></div>
+            <div class="event-card-title">Photography Masterclass</div>
+            <div class="event-card-info">
+              <div class="event-card-info-row">📅 January 20, 2025</div>
+              <div class="event-card-info-row">📍 Manipal University, Manipal</div>
+              <div class="event-card-info-row">👥 98 / 100 registered</div>
+            </div>
+            <div style="margin-bottom:14px;"><div class="progress"><div class="progress-bar" style="width:98%;background:linear-gradient(90deg,var(--danger),#F87171)"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;margin-top:4px;"><span style="color:var(--text-3)">98% filled</span><span style="color:var(--danger);font-weight:600;">2 left!</span></div></div>
+            <div class="event-card-footer">
+              <div style="font-size:13px;color:var(--text-2)">₹ 299 entry</div>
+              <button class="btn btn-danger btn-sm" onclick="fireConfetti()">Last 2 Seats!</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div style="display:flex;justify-content:center;margin-top:32px;">
+        <div class="pagination">
+          <div class="page-btn">←</div>
+          <div class="page-btn active">1</div>
+          <div class="page-btn">2</div>
+          <div class="page-btn">3</div>
+          <div class="page-btn">...</div>
+          <div class="page-btn">12</div>
+          <div class="page-btn">→</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 6. EVENT DETAIL ===== -->
+<!-- ============================== -->
+<div class="section" id="page-eventdetail">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-link" onclick="showPage('student')"><span class="sidebar-icon">🏠</span>Dashboard</div>
+        <div class="sidebar-link" onclick="showPage('events')"><span class="sidebar-icon">📅</span>Events</div>
+        <div class="sidebar-link" onclick="showPage('certificates')"><span class="sidebar-icon">🏆</span>Certificates</div>
+        <div class="sidebar-link" onclick="showPage('notifications')"><span class="sidebar-icon">🔔</span>Notifications</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Arjun Sharma</div><div class="sidebar-user-role">Student</div></div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div style="margin-bottom:16px;">
+        <button class="btn btn-ghost btn-sm" onclick="showPage('events')">← Back to Events</button>
+      </div>
+      <div class="event-details-layout">
+        <div>
+          <!-- Banner -->
+          <div class="event-details-banner">
+            <div class="event-details-banner-bg" style="background:linear-gradient(135deg,#1E1B4B,#4F46E5,#06B6D4);">💻</div>
+            <div class="event-details-banner-overlay"></div>
+            <div class="event-details-banner-content">
+              <div style="margin-bottom:10px;"><span class="badge badge-success badge-dot">Open for Registration</span> <span class="badge badge-primary">Technical</span></div>
+              <h1 class="event-details-title">National Hackathon 2025</h1>
+              <div style="display:flex;gap:16px;color:rgba(255,255,255,0.8);font-size:13px;">
+                <span>📅 January 15–16, 2025</span>
+                <span>📍 BITS Pilani, Rajasthan</span>
+                <span>👥 1,247 registered</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="event-desc-block">
+            <div class="block-title">About this Event</div>
+            <p style="font-size:14px;color:var(--text-2);line-height:1.8;">Join 1500+ of India's brightest minds for a 36-hour hackathon where innovation meets execution. Build groundbreaking solutions across tracks including FinTech, HealthTech, EdTech, and Sustainability. Top teams compete for prizes worth ₹10 Lakhs. Industry mentors from Google, Microsoft, and Paytm will guide you through the journey.</p>
+          </div>
+
+          <!-- Event Info -->
+          <div class="event-desc-block">
+            <div class="block-title">Event Details</div>
+            <div class="event-info-list">
+              <div class="event-info-row">
+                <div class="event-info-icon">📅</div>
+                <div><div class="event-info-text-label">Date & Time</div><div class="event-info-text-val">January 15–16, 2025 · 9:00 AM onwards</div></div>
+              </div>
+              <div class="event-info-row">
+                <div class="event-info-icon">📍</div>
+                <div><div class="event-info-text-label">Venue</div><div class="event-info-text-val">BITS Pilani Campus, Jhunjhunu Road, Rajasthan</div></div>
+              </div>
+              <div class="event-info-row">
+                <div class="event-info-icon">👤</div>
+                <div><div class="event-info-text-label">Organized by</div><div class="event-info-text-val">BITS ACM Student Chapter</div></div>
+              </div>
+              <div class="event-info-row">
+                <div class="event-info-icon">🏷</div>
+                <div><div class="event-info-text-label">Entry</div><div class="event-info-text-val">FREE · Teams of 2–4 members</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Speakers -->
+          <div class="event-desc-block">
+            <div class="block-title">Keynote Speakers</div>
+            <div class="speakers-grid">
+              <div class="speaker-card">
+                <div class="avatar avatar-lg" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">RS</div>
+                <div class="speaker-name">Rahul Sharma</div>
+                <div class="speaker-title">VP Engineering, Google India</div>
+              </div>
+              <div class="speaker-card">
+                <div class="avatar avatar-lg" style="background:linear-gradient(135deg,var(--success),#34D399)">AK</div>
+                <div class="speaker-name">Ananya Kumar</div>
+                <div class="speaker-title">CTO, Paytm</div>
+              </div>
+              <div class="speaker-card">
+                <div class="avatar avatar-lg" style="background:linear-gradient(135deg,var(--warning),#FBBF24)">MJ</div>
+                <div class="speaker-name">Manoj Jain</div>
+                <div class="speaker-title">Director, Microsoft Azure</div>
+              </div>
+              <div class="speaker-card">
+                <div class="avatar avatar-lg" style="background:linear-gradient(135deg,var(--danger),#F87171)">PS</div>
+                <div class="speaker-name">Priya Singh</div>
+                <div class="speaker-title">Founder, EdTech Startup</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div>
+          <!-- Countdown -->
+          <div class="sidebar-card">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:14px;text-align:center;">⏳ Registration closes in</div>
+            <div class="countdown-grid">
+              <div class="countdown-item"><div class="countdown-num" id="cd-days">05</div><div class="countdown-label">Days</div></div>
+              <div class="countdown-item"><div class="countdown-num" id="cd-hours">14</div><div class="countdown-label">Hours</div></div>
+              <div class="countdown-item"><div class="countdown-num" id="cd-mins">32</div><div class="countdown-label">Mins</div></div>
+              <div class="countdown-item"><div class="countdown-num" id="cd-secs">08</div><div class="countdown-label">Secs</div></div>
+            </div>
+          </div>
+
+          <!-- Registration Card -->
+          <div class="sidebar-card">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:15px;margin-bottom:12px;">Registration</div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;">
+              <span style="color:var(--text-2)">Registered</span><span style="font-weight:700;">1,247 / 1,500</span>
+            </div>
+            <div class="progress" style="margin-bottom:8px;"><div class="progress-bar" style="width:83%"></div></div>
+            <div style="font-size:12px;color:var(--danger);margin-bottom:16px;font-weight:600;">⚡ Only 253 seats remaining!</div>
+            <button class="btn btn-primary" style="width:100%;margin-bottom:8px;" onclick="fireConfetti();showToast('🎉 Registered successfully!','success')">🎟 Register Now — FREE</button>
+            <button class="btn btn-secondary" style="width:100%;">♡ Save for Later</button>
+          </div>
+
+          <!-- Volunteer -->
+          <div class="sidebar-card">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:15px;margin-bottom:8px;">Volunteer for this Event</div>
+            <div style="font-size:13px;color:var(--text-2);margin-bottom:12px;">Help us run the event and earn bonus certificates!</div>
+            <button class="btn btn-secondary" style="width:100%;" onclick="showPage('volunteer')">Apply as Volunteer</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 7. ORGANIZER DASHBOARD ===== -->
+<!-- ============================== -->
+<div class="section" id="page-organizer">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Organizer</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">📊</span>Dashboard</div>
+        <div class="sidebar-link" onclick="showPage('create')"><span class="sidebar-icon">➕</span>Create Event</div>
+        <div class="sidebar-link"><span class="sidebar-icon">📋</span>My Events</div>
+        <div class="sidebar-link"><span class="sidebar-icon">👥</span>Participants</div>
+        <div class="sidebar-link" onclick="showPage('qr')"><span class="sidebar-icon">📷</span>Attendance</div>
+        <div class="sidebar-link" onclick="showPage('feedback')"><span class="sidebar-icon">⭐</span>Feedback</div>
+        <div class="sidebar-link" onclick="showPage('notifications')"><span class="sidebar-icon">🔔</span>Notifications</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--success),#34D399)">P</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Priya Krishnan</div><div class="sidebar-user-role">Organizer</div></div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="topbar">
+        <div><div class="topbar-title">Organizer Dashboard</div><div class="topbar-subtitle">Manage your events and track performance</div></div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary" onclick="showPage('create')">+ Create Event</button>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card primary"><div class="stat-card-label">Total Events</div><div class="stat-card-value">24</div><div class="stat-card-change up">↑ 4 this month</div><div class="stat-card-icon" style="background:rgba(79,70,229,0.1);">📅</div></div>
+        <div class="stat-card cyan"><div class="stat-card-label">Total Registrations</div><div class="stat-card-value">4,821</div><div class="stat-card-change up">↑ 12% vs last</div><div class="stat-card-icon" style="background:rgba(6,182,212,0.1);">📝</div></div>
+        <div class="stat-card success"><div class="stat-card-label">Attendance Rate</div><div class="stat-card-value">87%</div><div class="stat-card-change up">↑ 3% vs avg</div><div class="stat-card-icon" style="background:rgba(16,185,129,0.1);">✅</div></div>
+        <div class="stat-card warning"><div class="stat-card-label">Avg Feedback Score</div><div class="stat-card-value">4.7★</div><div class="stat-card-change up">↑ Excellent</div><div class="stat-card-icon" style="background:rgba(245,158,11,0.1);">⭐</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Registration Trend</div><div class="chart-legend"><div class="legend-item"><div class="legend-dot" style="background:var(--primary)"></div>Registrations</div><div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Attendance</div></div></div>
+          <div class="bar-chart">
+            <div class="bar-group"><div class="bar bar-primary" style="height:70px;"></div><div class="bar bar-cyan" style="height:65px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:95px;"></div><div class="bar bar-cyan" style="height:85px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:120px;"></div><div class="bar bar-cyan" style="height:105px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:80px;"></div><div class="bar bar-cyan" style="height:72px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:145px;"></div><div class="bar bar-cyan" style="height:128px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:110px;"></div><div class="bar bar-cyan" style="height:98px;"></div></div>
+          </div>
+          <div class="bar-labels"><div class="bar-label">Aug</div><div class="bar-label">Sep</div><div class="bar-label">Oct</div><div class="bar-label">Nov</div><div class="bar-label">Dec</div><div class="bar-label">Jan</div></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Event Status</div></div>
+          <div class="donut-wrapper">
+            <div class="donut-chart">
+              <svg viewBox="0 0 120 120" width="140" height="140">
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#EEF2FF" stroke-width="18"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#10B981" stroke-width="18" stroke-dasharray="150 152" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#4F46E5" stroke-width="18" stroke-dasharray="75 227" stroke-dashoffset="-150" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#F59E0B" stroke-width="18" stroke-dasharray="27 275" stroke-dashoffset="-225" transform="rotate(-90 60 60)"/>
+              </svg>
+              <div class="donut-center"><div class="donut-value">24</div><div class="donut-label">Events</div></div>
+            </div>
+            <div class="donut-legend">
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--success)"></span>Completed</span><span class="donut-legend-val">16</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--primary)"></span>Upcoming</span><span class="donut-legend-val">6</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--warning)"></span>Draft</span><span class="donut-legend-val">2</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Events Table -->
+      <div class="table-card">
+        <div class="table-header-row"><div class="table-title">Manage Events</div><div style="display:flex;gap:8px;"><div class="search-bar"><input class="search-input" placeholder="Search events..."></div><button class="btn btn-primary btn-sm" onclick="showPage('create')">+ New Event</button></div></div>
+        <table>
+          <thead><tr><th>Event Name</th><th>Date</th><th>Registrations</th><th>Attendance</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><div class="event-name-cell"><div class="event-dot" style="background:var(--primary)"></div>National Hackathon 2025</div></td><td>Jan 15–16</td><td>1,247</td><td><div class="progress" style="width:80px;display:inline-flex;"><div class="progress-bar" style="width:83%"></div></div> 83%</td><td><span class="badge badge-success badge-dot">Active</span></td><td><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-ghost btn-sm" onclick="showPage('qr')">Scan</button></td></tr>
+            <tr><td><div class="event-name-cell"><div class="event-dot" style="background:var(--cyan)"></div>Design Conclave</div></td><td>Feb 3</td><td>477</td><td><div class="progress" style="width:80px;display:inline-flex;"><div class="progress-bar" style="width:0%"></div></div> —</td><td><span class="badge badge-primary badge-dot">Upcoming</span></td><td><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-ghost btn-sm">Share</button></td></tr>
+            <tr><td><div class="event-name-cell"><div class="event-dot" style="background:var(--success)"></div>Tech Expo 2024</div></td><td>Dec 20</td><td>892</td><td><div class="progress" style="width:80px;display:inline-flex;"><div class="progress-bar" style="width:91%"></div></div> 91%</td><td><span class="badge badge-neutral">Completed</span></td><td><button class="btn btn-ghost btn-sm">View</button><button class="btn btn-ghost btn-sm">Report</button></td></tr>
+            <tr><td><div class="event-name-cell"><div class="event-dot" style="background:var(--warning)"></div>AI Workshop Series</div></td><td>Draft</td><td>—</td><td>—</td><td><span class="badge badge-warning">Draft</span></td><td><button class="btn btn-ghost btn-sm">Edit</button><button class="btn btn-ghost btn-sm">Publish</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 8. EVENT CREATION ===== -->
+<!-- ============================== -->
+<div class="section" id="page-create">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-link" onclick="showPage('organizer')"><span class="sidebar-icon">📊</span>Dashboard</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">➕</span>Create Event</div>
+        <div class="sidebar-link"><span class="sidebar-icon">📋</span>My Events</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--success),#34D399)">P</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Priya Krishnan</div><div class="sidebar-user-role">Organizer</div></div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="topbar">
+        <div><div class="topbar-title">Create New Event</div><div class="topbar-subtitle">Fill in the details to publish your event</div></div>
+        <div class="topbar-actions">
+          <button class="btn btn-secondary">Save Draft</button>
+          <button class="btn btn-primary" onclick="showToast('✅ Event published successfully!','success');fireConfetti()">Publish Event</button>
+        </div>
+      </div>
+      <div class="creation-layout">
+        <div>
+          <div class="form-section">
+            <div class="form-section-title"><div class="form-section-icon" style="background:rgba(79,70,229,0.1);">📝</div>Basic Information</div>
+            <div class="form-full"><div class="form-group"><label class="form-label">Event Title *</label><input class="form-input" placeholder="e.g. National Hackathon 2025"></div></div>
+            <div class="form-full"><div class="form-group"><label class="form-label">Description *</label><textarea class="form-input" rows="4" placeholder="Describe what participants can expect from your event..."></textarea></div></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Category *</label>
+                <select class="form-input"><option>Technical</option><option>Cultural</option><option>Sports</option><option>Workshop</option><option>Seminar</option></select>
+              </div>
+              <div class="form-group"><label class="form-label">Department</label>
+                <select class="form-input"><option>All Departments</option><option>CSE</option><option>ECE</option><option>MBA</option><option>Civil</option></select>
+              </div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="form-section-title"><div class="form-section-icon" style="background:rgba(6,182,212,0.1);">📍</div>Venue Details</div>
+            <div class="form-full"><div class="form-group"><label class="form-label">Venue Name *</label><input class="form-input" placeholder="e.g. Main Auditorium, Block A"></div></div>
+            <div class="form-full"><div class="form-group"><label class="form-label">Full Address</label><input class="form-input" placeholder="College name, City, State, PIN"></div></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Event Date *</label><input class="form-input" type="date"></div>
+              <div class="form-group"><label class="form-label">End Date</label><input class="form-input" type="date"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Start Time</label><input class="form-input" type="time" value="09:00"></div>
+              <div class="form-group"><label class="form-label">End Time</label><input class="form-input" type="time" value="17:00"></div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="form-section-title"><div class="form-section-icon" style="background:rgba(16,185,129,0.1);">🎟</div>Registration Settings</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Max Capacity *</label><input class="form-input" type="number" placeholder="500" value="500"></div>
+              <div class="form-group"><label class="form-label">Registration Deadline</label><input class="form-input" type="date"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">Entry Type</label>
+                <select class="form-input"><option>Free</option><option>Paid</option></select>
+              </div>
+              <div class="form-group"><label class="form-label">Entry Fee (₹)</label><input class="form-input" type="number" placeholder="0"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+              <div><div style="font-size:14px;font-weight:500;">Enable Waitlist</div><div style="font-size:12px;color:var(--text-3);">Allow overflow registrations</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;">
+              <div><div style="font-size:14px;font-weight:500;">Generate QR Codes</div><div style="font-size:12px;color:var(--text-3);">Auto-send QR on registration</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+          </div>
+          <div class="form-section">
+            <div class="form-section-title"><div class="form-section-icon" style="background:rgba(245,158,11,0.1);">🖼</div>Event Banner</div>
+            <div class="upload-zone">
+              <div style="font-size:36px;margin-bottom:10px;">📷</div>
+              <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Drop your banner here</div>
+              <div style="font-size:13px;color:var(--text-3);">PNG, JPG up to 5MB · Recommended 1920×1080</div>
+              <button class="btn btn-secondary btn-sm" style="margin-top:12px;">Choose File</button>
+            </div>
+          </div>
+        </div>
+        <!-- Preview -->
+        <div>
+          <div class="preview-card">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:12px;color:var(--text-2);">PREVIEW</div>
+            <div class="event-card-full" style="cursor:default;">
+              <div class="preview-event-banner" style="background:linear-gradient(135deg,#1E1B4B,#4F46E5);">🎪</div>
+              <div class="event-card-body">
+                <div class="event-card-category"><span class="badge badge-primary">Technical</span></div>
+                <div class="event-card-title">Your Event Title Here</div>
+                <div class="event-card-info">
+                  <div class="event-card-info-row">📅 Event Date</div>
+                  <div class="event-card-info-row">📍 Venue Name</div>
+                  <div class="event-card-info-row">👥 0 / 500 registered</div>
+                </div>
+                <div class="event-card-footer">
+                  <div style="font-size:13px;color:var(--success)">FREE</div>
+                  <button class="btn btn-primary btn-sm">Register</button>
+                </div>
+              </div>
+            </div>
+            <div class="sticky-save">
+              <button class="btn btn-primary" style="width:100%;" onclick="showToast('✅ Event published!','success');fireConfetti()">🚀 Publish Event</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 9. VOLUNTEER DASHBOARD ===== -->
+<!-- ============================== -->
+<div class="section" id="page-volunteer">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Volunteer</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">🏠</span>Dashboard</div>
+        <div class="sidebar-link" onclick="showPage('qr')"><span class="sidebar-icon">📷</span>QR Scanner</div>
+        <div class="sidebar-link"><span class="sidebar-icon">📋</span>Attendance Logs</div>
+        <div class="sidebar-link" onclick="showPage('notifications')"><span class="sidebar-icon">🔔</span>Notifications</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--warning),#FBBF24)">V</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Vijay Mehta</div><div class="sidebar-user-role">Volunteer</div></div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="topbar">
+        <div><div class="topbar-title">Volunteer Dashboard</div><div class="topbar-subtitle">Your assignments and tasks for today</div></div>
+        <div class="topbar-actions"><button class="btn btn-primary" onclick="showPage('qr')">📷 Open Scanner</button></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card primary"><div class="stat-card-label">Assigned Events</div><div class="stat-card-value">3</div><div class="stat-card-icon" style="background:rgba(79,70,229,0.1);">📅</div></div>
+        <div class="stat-card cyan"><div class="stat-card-label">Scanned Today</div><div class="stat-card-value">147</div><div class="stat-card-change up">↑ Active</div><div class="stat-card-icon" style="background:rgba(6,182,212,0.1);">📷</div></div>
+        <div class="stat-card success"><div class="stat-card-label">Tasks Completed</div><div class="stat-card-value">8/10</div><div class="stat-card-icon" style="background:rgba(16,185,129,0.1);">✅</div></div>
+        <div class="stat-card warning"><div class="stat-card-label">Volunteer Hours</div><div class="stat-card-value">28h</div><div class="stat-card-icon" style="background:rgba(245,158,11,0.1);">⏱</div></div>
+      </div>
+      <div class="content-row">
+        <div>
+          <!-- Assigned Events -->
+          <div class="table-card" style="margin-bottom:16px;">
+            <div class="table-header-row"><div class="table-title">Assigned Events</div></div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:12px;">
+              <div style="background:linear-gradient(135deg,rgba(79,70,229,0.05),rgba(6,182,212,0.05));border:1px solid rgba(79,70,229,0.15);border-radius:var(--radius-lg);padding:16px;display:flex;align-items:center;gap:14px;">
+                <div style="font-size:32px;">💻</div>
+                <div style="flex:1;">
+                  <div style="font-weight:700;font-size:15px;">National Hackathon 2025</div>
+                  <div style="font-size:12px;color:var(--text-2);margin-top:2px;">Jan 15–16 · Role: Registration Desk</div>
+                </div>
+                <button class="btn btn-primary btn-sm" onclick="showPage('qr')">📷 Scan</button>
+              </div>
+              <div style="background:var(--bg-2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;display:flex;align-items:center;gap:14px;">
+                <div style="font-size:32px;">🎨</div>
+                <div style="flex:1;">
+                  <div style="font-weight:700;font-size:15px;">Design Conclave 2025</div>
+                  <div style="font-size:12px;color:var(--text-2);margin-top:2px;">Feb 3 · Role: Stage Management</div>
+                </div>
+                <span class="badge badge-primary">Upcoming</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Scans -->
+          <div class="table-card">
+            <div class="table-header-row"><div class="table-title">Recent Check-ins</div><button class="btn btn-ghost btn-sm">View All</button></div>
+            <table>
+              <thead><tr><th>Name</th><th>Roll No</th><th>Time</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>Arjun Sharma</div></td><td style="font-family:var(--font-mono);font-size:12px;">2021CS1234</td><td style="color:var(--text-2)">10:24 AM</td><td><span class="badge badge-success badge-dot">Present</span></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--success),#34D399)">P</div>Priya Singh</div></td><td style="font-family:var(--font-mono);font-size:12px;">2021CS1891</td><td style="color:var(--text-2)">10:22 AM</td><td><span class="badge badge-success badge-dot">Present</span></td></tr>
+                <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--warning),#FBBF24)">R</div>Rahul Verma</div></td><td style="font-family:var(--font-mono);font-size:12px;">2022EC0234</td><td style="color:var(--text-2)">10:19 AM</td><td><span class="badge badge-danger">Not Found</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="chart-card">
+            <div class="chart-title" style="margin-bottom:16px;">Today's Tasks</div>
+            <div class="volunteer-tasks">
+              <div class="task-item"><div class="task-checkbox done">✓</div><div><div class="task-text done">Set up registration desk</div><div class="task-time">9:00 AM</div></div></div>
+              <div class="task-item"><div class="task-checkbox done">✓</div><div><div class="task-text done">Test QR scanner setup</div><div class="task-time">9:30 AM</div></div></div>
+              <div class="task-item"><div class="task-checkbox done">✓</div><div><div class="task-text done">Verify participant list</div><div class="task-time">10:00 AM</div></div></div>
+              <div class="task-item"><div class="task-checkbox"></div><div><div class="task-text">Manage lunch distribution</div><div class="task-time" style="color:var(--primary)">1:00 PM</div></div></div>
+              <div class="task-item"><div class="task-checkbox"></div><div><div class="task-text">Coordinate with judges</div><div class="task-time">3:00 PM</div></div></div>
+              <div class="task-item"><div class="task-checkbox"></div><div><div class="task-text">Award ceremony setup</div><div class="task-time">5:00 PM</div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 10. QR ATTENDANCE ===== -->
+<!-- ============================== -->
+<div class="section" id="page-qr">
+  <div class="qr-layout">
+    <div class="qr-main">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:32px;">
+        <div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:#fff;">⬡ EventSphere</div>
+        <div style="height:20px;width:1px;background:rgba(255,255,255,0.1)"></div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.5);">QR Attendance Scanner</div>
+      </div>
+      <h2 class="qr-title">Scan Participant QR Code</h2>
+      <p class="qr-subtitle">National Hackathon 2025 · January 15, 2025</p>
+      <div class="qr-scanner-area" onclick="simulateScan()">
+        <div class="qr-scanline"></div>
+        <div class="qr-corners"></div>
+        <div class="qr-placeholder">
+          <span class="qr-placeholder-icon">📱</span>
+          <span class="qr-placeholder-text">Click to simulate scan</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:20px;padding:12px 20px;background:rgba(255,255,255,0.06);border-radius:var(--radius-md);border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);">Scanned today:</div>
+        <div style="font-family:var(--font-display);font-size:22px;font-weight:800;color:var(--success)" id="scanCount">147</div>
+        <div style="height:20px;width:1px;background:rgba(255,255,255,0.1)"></div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.6);">Total registered: <span style="color:#fff;font-weight:700;">1,247</span></div>
+      </div>
+      <div class="qr-controls">
+        <button class="btn btn-secondary" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:#fff;">📂 Manual Entry</button>
+        <button class="btn btn-primary" onclick="simulateScan()">▶ Simulate Scan</button>
+        <button class="btn btn-secondary" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.12);color:#fff;">📊 Export Logs</button>
+      </div>
+    </div>
+    <div class="qr-sidebar">
+      <div class="qr-participant-card" id="qrParticipantCard">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div class="avatar avatar-lg" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+          <div>
+            <div class="qr-participant-name">Arjun Sharma</div>
+            <div class="qr-participant-info">2021CS1234 · IIT Delhi · CSE</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+          <div style="background:rgba(255,255,255,0.06);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:2px;">Team</div><div style="font-size:13px;color:#fff;font-weight:600;">CodeCrafters</div></div>
+          <div style="background:rgba(255,255,255,0.06);border-radius:6px;padding:10px;text-align:center;"><div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:2px;">Track</div><div style="font-size:13px;color:#fff;font-weight:600;">FinTech</div></div>
+        </div>
+        <div class="qr-status present">✅ Marked Present · 10:24 AM</div>
+      </div>
+      <div>
+        <div class="qr-checkins-title">Recent Check-ins</div>
+        <div class="checkin-item"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div><div><div class="checkin-name">Arjun Sharma</div><div class="checkin-time">10:24 AM</div></div><div class="checkin-status"></div></div>
+        <div class="checkin-item"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--success),#34D399)">P</div><div><div class="checkin-name">Priya Singh</div><div class="checkin-time">10:22 AM</div></div><div class="checkin-status"></div></div>
+        <div class="checkin-item"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--warning),#FBBF24)">M</div><div><div class="checkin-name">Mohit Kumar</div><div class="checkin-time">10:19 AM</div></div><div class="checkin-status"></div></div>
+        <div class="checkin-item"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--danger),#F87171)">S</div><div><div class="checkin-name">Sneha Gupta</div><div class="checkin-time">10:15 AM</div></div><div class="checkin-status"></div></div>
+        <div class="checkin-item"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,#7C3AED,#A78BFA)">R</div><div><div class="checkin-name">Rohan Verma</div><div class="checkin-time">10:11 AM</div></div><div class="checkin-status"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 11. CERTIFICATES ===== -->
+<!-- ============================== -->
+<div class="section" id="page-certificates">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-link" onclick="showPage('student')"><span class="sidebar-icon">🏠</span>Dashboard</div>
+        <div class="sidebar-link" onclick="showPage('events')"><span class="sidebar-icon">📅</span>Events</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">🏆</span>Certificates</div>
+        <div class="sidebar-link" onclick="showPage('profile')"><span class="sidebar-icon">👤</span>Profile</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Arjun Sharma</div><div class="sidebar-user-role">Student</div></div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="topbar">
+        <div><div class="topbar-title">My Certificates</div><div class="topbar-subtitle">5 certificates earned · All verified</div></div>
+        <div class="topbar-actions">
+          <div class="search-bar"><span style="color:var(--text-3)">🔍</span><input class="search-input" placeholder="Search certificates..."></div>
+        </div>
+      </div>
+      <div class="cert-gallery">
+        <div class="cert-card">
+          <div class="cert-preview" style="background:linear-gradient(135deg,#1E1B4B,#4F46E5);">
+            <div class="cert-border"></div>
+            <div style="text-align:center;z-index:1;position:relative;">
+              <div style="font-size:24px;margin-bottom:4px;">🏆</div>
+              <div class="cert-preview-title">Certificate of Participation</div>
+            </div>
+          </div>
+          <div class="cert-body">
+            <div class="cert-event-name">National Hackathon 2024</div>
+            <div class="cert-meta">Issued: December 18, 2024 · BITS Pilani</div>
+            <div class="cert-footer">
+              <div class="cert-verify">✅ Verified</div>
+              <button class="btn btn-primary btn-sm" onclick="showToast('📥 Downloading certificate...','success')">⬇ Download</button>
+            </div>
+          </div>
+        </div>
+        <div class="cert-card">
+          <div class="cert-preview" style="background:linear-gradient(135deg,#064E3B,#10B981);">
+            <div class="cert-border"></div>
+            <div style="text-align:center;z-index:1;position:relative;">
+              <div style="font-size:24px;margin-bottom:4px;">🥇</div>
+              <div class="cert-preview-title">Certificate of Achievement</div>
+            </div>
+          </div>
+          <div class="cert-body">
+            <div class="cert-event-name">Data Science Workshop</div>
+            <div class="cert-meta">Issued: January 8, 2025 · IIT Delhi</div>
+            <div class="cert-footer">
+              <div class="cert-verify">✅ Verified</div>
+              <button class="btn btn-primary btn-sm" onclick="showToast('📥 Downloading certificate...','success')">⬇ Download</button>
+            </div>
+          </div>
+        </div>
+        <div class="cert-card">
+          <div class="cert-preview" style="background:linear-gradient(135deg,#0E7490,#06B6D4);">
+            <div class="cert-border"></div>
+            <div style="text-align:center;z-index:1;position:relative;">
+              <div style="font-size:24px;margin-bottom:4px;">🎖</div>
+              <div class="cert-preview-title">Certificate of Completion</div>
+            </div>
+          </div>
+          <div class="cert-body">
+            <div class="cert-event-name">Cloud Computing Seminar</div>
+            <div class="cert-meta">Issued: November 25, 2024 · IIT Bombay</div>
+            <div class="cert-footer">
+              <div class="cert-verify">✅ Verified</div>
+              <button class="btn btn-primary btn-sm" onclick="showToast('📥 Downloading certificate...','success')">⬇ Download</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 12. FEEDBACK ===== -->
+<!-- ============================== -->
+<div class="section" id="page-feedback">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-link" onclick="showPage('student')"><span class="sidebar-icon">🏠</span>Dashboard</div>
+        <div class="sidebar-link" onclick="showPage('events')"><span class="sidebar-icon">📅</span>Events</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">⭐</span>Feedback</div>
+        <div class="sidebar-link" onclick="showPage('profile')"><span class="sidebar-icon">👤</span>Profile</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Arjun Sharma</div><div class="sidebar-user-role">Student</div></div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="topbar"><div><div class="topbar-title">Event Feedback</div><div class="topbar-subtitle">National Hackathon 2025</div></div></div>
+      <div class="feedback-layout">
+        <div>
+          <!-- Rating form -->
+          <div class="chart-card" style="margin-bottom:16px;">
+            <div class="chart-title" style="margin-bottom:4px;">Rate this Event</div>
+            <div style="font-size:13px;color:var(--text-2);margin-bottom:16px;">National Hackathon 2025 · BITS Pilani</div>
+            <div style="margin-bottom:16px;">
+              <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Overall Experience</div>
+              <div class="star-rating" id="starRating">
+                <span class="star filled" onclick="rateStar(1)">★</span>
+                <span class="star filled" onclick="rateStar(2)">★</span>
+                <span class="star filled" onclick="rateStar(3)">★</span>
+                <span class="star filled" onclick="rateStar(4)">★</span>
+                <span class="star" onclick="rateStar(5)">★</span>
+              </div>
+            </div>
+            <div class="form-full" style="margin-bottom:16px;"><div class="form-group"><label class="form-label">Your Review</label><textarea class="form-input" rows="4" placeholder="Share your experience about the event organization, content quality, and overall atmosphere..."></textarea></div></div>
+            <button class="btn btn-primary" onclick="showToast('✅ Feedback submitted! Thank you!','success')">Submit Feedback</button>
+          </div>
+          <!-- Review Cards -->
+          <div class="chart-card">
+            <div class="chart-title" style="margin-bottom:16px;">Community Reviews</div>
+            <div class="review-cards">
+              <div class="review-card">
+                <div class="review-header">
+                  <div class="review-author"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--success),#34D399)">P</div><div><div class="review-name">Priya Singh</div><div class="review-date">Jan 17, 2025</div></div></div>
+                  <div class="review-stars">★★★★★</div>
+                </div>
+                <div class="review-text">Absolutely incredible experience! The organization was top-notch, mentors were super helpful, and the energy throughout was electric. Would love to participate again!</div>
+              </div>
+              <div class="review-card">
+                <div class="review-header">
+                  <div class="review-author"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--warning),#FBBF24)">M</div><div><div class="review-name">Mohit Kumar</div><div class="review-date">Jan 17, 2025</div></div></div>
+                  <div class="review-stars">★★★★<span style="color:#D1D5DB">★</span></div>
+                </div>
+                <div class="review-text">Great hackathon! Problem statements were challenging and relevant. Food could've been better but the overall experience was worth it.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="rating-summary-card">
+            <div class="rating-big">4.7</div>
+            <div class="rating-stars-display">★★★★★</div>
+            <div class="rating-count">Based on 892 reviews</div>
+            <div>
+              <div class="rating-bar-row"><span class="rating-bar-label">5</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:75%"></div></div><span class="rating-bar-count">670</span></div>
+              <div class="rating-bar-row"><span class="rating-bar-label">4</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:18%"></div></div><span class="rating-bar-count">161</span></div>
+              <div class="rating-bar-row"><span class="rating-bar-label">3</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:5%"></div></div><span class="rating-bar-count">45</span></div>
+              <div class="rating-bar-row"><span class="rating-bar-label">2</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:1%"></div></div><span class="rating-bar-count">9</span></div>
+              <div class="rating-bar-row"><span class="rating-bar-label">1</span><div class="rating-bar-track"><div class="rating-bar-fill" style="width:0.5%"></div></div><span class="rating-bar-count">4</span></div>
+            </div>
+            <div style="margin-top:20px;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--text-2)">Organization</span><div style="display:flex;gap:2px;color:var(--warning)">★★★★★</div></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--text-2)">Content Quality</span><div style="display:flex;gap:2px;color:var(--warning)">★★★★<span style="color:#D1D5DB">★</span></div></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--text-2)">Venue & Facilities</span><div style="display:flex;gap:2px;color:var(--warning)">★★★★<span style="color:#D1D5DB">★</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 13. ADMIN DASHBOARD ===== -->
+<!-- ============================== -->
+<div class="section" id="page-admin">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Admin Panel</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">📊</span>Overview</div>
+        <div class="sidebar-link"><span class="sidebar-icon">👥</span>Users</div>
+        <div class="sidebar-link"><span class="sidebar-icon">📅</span>All Events</div>
+        <div class="sidebar-link"><span class="sidebar-icon">🏫</span>Colleges</div>
+        <div class="sidebar-link"><span class="sidebar-icon">✅</span>Approvals<span class="sidebar-badge"><span class="badge badge-danger">4</span></span></div>
+        <div class="sidebar-link"><span class="sidebar-icon">⚙️</span>System</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--danger),#F87171)">SA</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Super Admin</div><div class="sidebar-user-role">Administrator</div></div>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="topbar">
+        <div><div class="topbar-title">Admin Dashboard</div><div class="topbar-subtitle">Platform-wide analytics and management</div></div>
+        <div class="topbar-actions"><span class="badge badge-success badge-dot">System Healthy</span></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card primary"><div class="stat-card-label">Total Users</div><div class="stat-card-value">48,291</div><div class="stat-card-change up">↑ 8.2% this month</div><div class="stat-card-icon" style="background:rgba(79,70,229,0.1);">👥</div></div>
+        <div class="stat-card cyan"><div class="stat-card-label">Active Events</div><div class="stat-card-value">127</div><div class="stat-card-change up">↑ 23 this week</div><div class="stat-card-icon" style="background:rgba(6,182,212,0.1);">📅</div></div>
+        <div class="stat-card success"><div class="stat-card-label">Registrations</div><div class="stat-card-value">184K</div><div class="stat-card-change up">↑ 12% vs last month</div><div class="stat-card-icon" style="background:rgba(16,185,129,0.1);">📝</div></div>
+        <div class="stat-card warning"><div class="stat-card-label">Certificates</div><div class="stat-card-value">95.4K</div><div class="stat-card-change up">↑ All verified</div><div class="stat-card-icon" style="background:rgba(245,158,11,0.1);">🏆</div></div>
+      </div>
+      <div class="admin-charts-row">
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">Monthly Growth</div></div>
+          <div class="bar-chart">
+            <div class="bar-group"><div class="bar bar-primary" style="height:50px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:70px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:90px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:80px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:120px;"></div></div>
+            <div class="bar-group"><div class="bar bar-primary" style="height:145px;"></div></div>
+          </div>
+          <div class="bar-labels"><div class="bar-label">Aug</div><div class="bar-label">Sep</div><div class="bar-label">Oct</div><div class="bar-label">Nov</div><div class="bar-label">Dec</div><div class="bar-label">Jan</div></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header"><div class="chart-title">User Roles</div></div>
+          <div class="donut-wrapper">
+            <div class="donut-chart">
+              <svg viewBox="0 0 120 120" width="120" height="120">
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#EEF2FF" stroke-width="18"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#4F46E5" stroke-width="18" stroke-dasharray="175 127" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#06B6D4" stroke-width="18" stroke-dasharray="50 252" stroke-dashoffset="-175" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="48" fill="none" stroke="#10B981" stroke-width="18" stroke-dasharray="27 275" stroke-dashoffset="-225" transform="rotate(-90 60 60)"/>
+              </svg>
+              <div class="donut-center"><div class="donut-value" style="font-size:18px;">48K</div><div class="donut-label">Users</div></div>
+            </div>
+            <div class="donut-legend">
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--primary)"></span>Students</span><span class="donut-legend-val">82%</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--cyan)"></span>Organizers</span><span class="donut-legend-val">12%</span></div>
+              <div class="donut-legend-item"><span class="donut-legend-label"><span class="donut-legend-dot" style="background:var(--success)"></span>Volunteers</span><span class="donut-legend-val">6%</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title" style="margin-bottom:12px;">System Health</div>
+          <div class="system-health">
+            <div class="health-item"><div class="health-label">API Response</div><div class="health-value" style="color:var(--success)">98ms</div><div class="health-bar"><div class="progress"><div class="progress-bar" style="width:98%;background:linear-gradient(90deg,var(--success),#34D399)"></div></div></div></div>
+            <div class="health-item"><div class="health-label">Uptime</div><div class="health-value" style="color:var(--success)">99.97%</div><div class="health-bar"><div class="progress"><div class="progress-bar" style="width:99.97%;background:linear-gradient(90deg,var(--success),#34D399)"></div></div></div></div>
+            <div class="health-item"><div class="health-label">DB Load</div><div class="health-value" style="color:var(--warning)">42%</div><div class="health-bar"><div class="progress"><div class="progress-bar" style="width:42%;background:linear-gradient(90deg,var(--warning),#FBBF24)"></div></div></div></div>
+            <div class="health-item"><div class="health-label">CDN Cache</div><div class="health-value" style="color:var(--cyan)">94%</div><div class="health-bar"><div class="progress"><div class="progress-bar" style="width:94%;background:linear-gradient(90deg,var(--cyan),#22D3EE)"></div></div></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Users Table -->
+      <div class="table-card" style="margin-bottom:16px;">
+        <div class="table-header-row"><div class="table-title">Recent Users</div><button class="btn btn-ghost btn-sm">View All</button></div>
+        <table>
+          <thead><tr><th>User</th><th>College</th><th>Role</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>Arjun Sharma</div></td><td style="color:var(--text-2)">IIT Delhi</td><td><span class="badge badge-primary">Student</span></td><td style="color:var(--text-2)">Jan 9</td><td><span class="badge badge-success badge-dot">Active</span></td><td><button class="btn btn-ghost btn-sm">Manage</button></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--success),#34D399)">P</div>Priya Krishnan</div></td><td style="color:var(--text-2)">BITS Goa</td><td><span class="badge badge-cyan">Organizer</span></td><td style="color:var(--text-2)">Jan 8</td><td><span class="badge badge-success badge-dot">Active</span></td><td><button class="btn btn-ghost btn-sm">Manage</button></td></tr>
+            <tr><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--warning),#FBBF24)">R</div>Ravi Kumar</div></td><td style="color:var(--text-2)">NIT Trichy</td><td><span class="badge badge-neutral">Volunteer</span></td><td style="color:var(--text-2)">Jan 7</td><td><span class="badge badge-warning">Pending</span></td><td><button class="btn btn-ghost btn-sm">Approve</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 14. PROFILE ===== -->
+<!-- ============================== -->
+<div class="section" id="page-profile">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-link" onclick="showPage('student')"><span class="sidebar-icon">🏠</span>Dashboard</div>
+        <div class="sidebar-link" onclick="showPage('events')"><span class="sidebar-icon">📅</span>Events</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">👤</span>Profile</div>
+        <div class="sidebar-link" onclick="showPage('notifications')"><span class="sidebar-icon">🔔</span>Notifications</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Arjun Sharma</div><div class="sidebar-user-role">Student</div></div>
+      </div>
+    </aside>
+    <main class="main-content profile-page">
+      <div class="topbar"><div><div class="topbar-title">Profile</div></div></div>
+      <!-- Profile Header -->
+      <div class="profile-header-card">
+        <div class="profile-header-blob"></div>
+        <div class="profile-header-inner">
+          <div class="profile-avatar">A</div>
+          <div style="flex:1;">
+            <div class="profile-name">Arjun Sharma</div>
+            <div class="profile-role">Computer Science · IIT Delhi · 3rd Year</div>
+            <div class="profile-badges">
+              <span class="profile-badge">🎓 Student</span>
+              <span class="profile-badge">⭐ Active Member</span>
+              <span class="profile-badge">🏆 5 Certs</span>
+            </div>
+          </div>
+          <button class="btn btn-secondary profile-edit-btn" style="background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.2);color:#fff;">✏️ Edit Profile</button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row" style="margin-bottom:20px;">
+        <div class="stat-card primary"><div class="stat-card-label">Events Attended</div><div class="stat-card-value">8</div></div>
+        <div class="stat-card success"><div class="stat-card-label">Certificates</div><div class="stat-card-value">5</div></div>
+        <div class="stat-card cyan"><div class="stat-card-label">Attendance Rate</div><div class="stat-card-value">96%</div></div>
+        <div class="stat-card warning"><div class="stat-card-label">Feedback Given</div><div class="stat-card-value">6</div></div>
+      </div>
+
+      <!-- Personal Details -->
+      <div class="settings-section">
+        <div class="settings-title">Personal Information</div>
+        <div class="form-row" style="margin-bottom:16px;"><div class="form-group"><label class="form-label">First Name</label><input class="form-input" value="Arjun"></div><div class="form-group"><label class="form-label">Last Name</label><input class="form-input" value="Sharma"></div></div>
+        <div class="form-full" style="margin-bottom:16px;"><div class="form-group"><label class="form-label">Email</label><input class="form-input" value="arjun.sharma@iitd.ac.in" type="email"></div></div>
+        <div class="form-full" style="margin-bottom:16px;"><div class="form-group"><label class="form-label">Phone</label><input class="form-input" value="+91 98765 43210"></div></div>
+        <button class="btn btn-primary" onclick="showToast('✅ Profile updated!','success')">Save Changes</button>
+      </div>
+
+      <!-- Notification Prefs -->
+      <div class="settings-section">
+        <div class="settings-title">Notification Preferences</div>
+        <div class="settings-row"><div><div class="settings-label">Event Reminders</div><div class="settings-desc">Get notified 24h before events</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="settings-row"><div><div class="settings-label">Registration Updates</div><div class="settings-desc">Confirmation and updates</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="settings-row"><div><div class="settings-label">Certificate Ready</div><div class="settings-desc">When your certificate is issued</div></div><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div class="settings-row"><div><div class="settings-label">New Events Near You</div><div class="settings-desc">Discover relevant events</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="settings-row"><div><div class="settings-label">Marketing Emails</div><div class="settings-desc">Updates about EventSphere</div></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+
+      <!-- Change Password -->
+      <div class="settings-section">
+        <div class="settings-title">Change Password</div>
+        <div class="form-full" style="margin-bottom:12px;"><div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" placeholder="••••••••"></div></div>
+        <div class="form-row" style="margin-bottom:16px;"><div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" placeholder="••••••••"></div><div class="form-group"><label class="form-label">Confirm Password</label><input class="form-input" type="password" placeholder="••••••••"></div></div>
+        <button class="btn btn-primary btn-sm" onclick="showToast('✅ Password updated!','success')">Update Password</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 15. NOTIFICATIONS ===== -->
+<!-- ============================== -->
+<div class="section" id="page-notifications">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-logo">⬡ EventSphere</div>
+      <div class="sidebar-section">
+        <div class="sidebar-link" onclick="showPage('student')"><span class="sidebar-icon">🏠</span>Dashboard</div>
+        <div class="sidebar-link" onclick="showPage('events')"><span class="sidebar-icon">📅</span>Events</div>
+        <div class="sidebar-link active"><span class="sidebar-icon">🔔</span>Notifications</div>
+        <div class="sidebar-link" onclick="showPage('profile')"><span class="sidebar-icon">👤</span>Profile</div>
+      </div>
+      <div class="sidebar-user">
+        <div class="avatar" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+        <div class="sidebar-user-info"><div class="sidebar-user-name">Arjun Sharma</div><div class="sidebar-user-role">Student</div></div>
+      </div>
+    </aside>
+    <main class="main-content notif-page">
+      <div class="notif-header">
+        <div><div class="topbar-title">Notifications</div><div style="font-size:13px;color:var(--text-2);margin-top:2px;">3 unread</div></div>
+        <div style="display:flex;gap:8px;">
+          <div class="tabs">
+            <div class="tab-item active">All</div>
+            <div class="tab-item">Unread</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('✅ All marked as read','success')">Mark all read</button>
+        </div>
+      </div>
+      <div class="notif-group-label">Today</div>
+      <div class="notif-item unread">
+        <div class="notif-icon-wrap" style="background:rgba(79,70,229,0.1);">🎟</div>
+        <div class="notif-body">
+          <div class="notif-title">Registration Confirmed</div>
+          <div class="notif-desc">Your registration for National Hackathon 2025 is confirmed. Your QR code has been sent to your email.</div>
+          <div class="notif-time">2 hours ago</div>
+        </div>
+        <div class="notif-dot"></div>
+      </div>
+      <div class="notif-item unread">
+        <div class="notif-icon-wrap" style="background:rgba(16,185,129,0.1);">🏆</div>
+        <div class="notif-body">
+          <div class="notif-title">Certificate Ready</div>
+          <div class="notif-desc">Your certificate for Data Science Workshop is now available for download!</div>
+          <div class="notif-time">5 hours ago</div>
+        </div>
+        <div class="notif-dot"></div>
+      </div>
+      <div class="notif-group-label" style="margin-top:16px;">Yesterday</div>
+      <div class="notif-item unread">
+        <div class="notif-icon-wrap" style="background:rgba(245,158,11,0.1);">⏰</div>
+        <div class="notif-body">
+          <div class="notif-title">Event Reminder</div>
+          <div class="notif-desc">National Hackathon 2025 is in 6 days! Don't forget to confirm your participation.</div>
+          <div class="notif-time">Yesterday, 3:00 PM</div>
+        </div>
+        <div class="notif-dot"></div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-icon-wrap" style="background:rgba(6,182,212,0.1);">📢</div>
+        <div class="notif-body">
+          <div class="notif-title">New Event Near You</div>
+          <div class="notif-desc">AI Summit India 2025 at IISc Bangalore is now open for registration. Limited seats available!</div>
+          <div class="notif-time">Yesterday, 10:00 AM</div>
+        </div>
+      </div>
+      <div class="notif-group-label" style="margin-top:16px;">This Week</div>
+      <div class="notif-item">
+        <div class="notif-icon-wrap" style="background:rgba(239,68,68,0.1);">⚡</div>
+        <div class="notif-body">
+          <div class="notif-title">Seats Filling Fast</div>
+          <div class="notif-desc">Photography Masterclass at Manipal University has only 5 seats left. Register before it's full!</div>
+          <div class="notif-time">3 days ago</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============================== -->
+<!-- ===== 16. COMPONENTS ===== -->
+<!-- ============================== -->
+<div class="section" id="page-components">
+  <div class="main-content component-page" style="max-width:1000px;">
+    <div class="topbar"><div><div class="topbar-title">Component System</div><div class="topbar-subtitle">Reusable UI components for EventSphere</div></div></div>
+
+    <div class="component-section">
+      <div class="component-section-title">Buttons</div>
+      <div class="component-row">
+        <button class="btn btn-primary">Primary</button>
+        <button class="btn btn-secondary">Secondary</button>
+        <button class="btn btn-cyan">Cyan</button>
+        <button class="btn btn-ghost">Ghost</button>
+        <button class="btn btn-success">Success</button>
+        <button class="btn btn-danger">Danger</button>
+      </div>
+      <div class="component-row">
+        <button class="btn btn-primary btn-lg">Large Button</button>
+        <button class="btn btn-primary">Default</button>
+        <button class="btn btn-primary btn-sm">Small</button>
+        <button class="btn btn-icon btn-primary">+</button>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Badges</div>
+      <div class="component-row">
+        <span class="badge badge-primary">Primary</span>
+        <span class="badge badge-cyan">Cyan</span>
+        <span class="badge badge-success">Success</span>
+        <span class="badge badge-warning">Warning</span>
+        <span class="badge badge-danger">Danger</span>
+        <span class="badge badge-neutral">Neutral</span>
+      </div>
+      <div class="component-row">
+        <span class="badge badge-primary badge-dot">Active</span>
+        <span class="badge badge-success badge-dot">Open</span>
+        <span class="badge badge-warning badge-dot">Filling Fast</span>
+        <span class="badge badge-danger badge-dot">Last Day</span>
+        <span class="badge badge-neutral badge-dot">Closed</span>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Form Inputs</div>
+      <div style="max-width:480px;display:flex;flex-direction:column;gap:12px;">
+        <div class="form-group"><label class="form-label">Text Input</label><input class="form-input" placeholder="Enter text here..."></div>
+        <div class="form-group"><label class="form-label">Textarea</label><textarea class="form-input" rows="3" placeholder="Write something..."></textarea></div>
+        <div class="form-group"><label class="form-label">Select</label><select class="form-input"><option>Option 1</option><option>Option 2</option></select></div>
+        <div class="search-bar" style="width:100%;"><span style="color:var(--text-3)">🔍</span><input class="search-input" placeholder="Search anything..."></div>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Progress & Charts</div>
+      <div style="max-width:400px;display:flex;flex-direction:column;gap:10px;">
+        <div><div style="font-size:12px;color:var(--text-2);margin-bottom:4px;">Registration Progress — 83%</div><div class="progress"><div class="progress-bar" style="width:83%"></div></div></div>
+        <div><div style="font-size:12px;color:var(--text-2);margin-bottom:4px;">Attendance Rate — 96%</div><div class="progress"><div class="progress-bar" style="width:96%;background:linear-gradient(90deg,var(--success),#34D399)"></div></div></div>
+        <div><div style="font-size:12px;color:var(--text-2);margin-bottom:4px;">Seats Filled — 22%</div><div class="progress"><div class="progress-bar" style="width:22%;background:linear-gradient(90deg,var(--warning),#FBBF24)"></div></div></div>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Alerts</div>
+      <div style="display:flex;flex-direction:column;gap:8px;max-width:500px;">
+        <div class="alert alert-info">ℹ️ Registration closes in 5 days. Make sure to confirm your spot!</div>
+        <div class="alert alert-success">✅ Your registration has been confirmed. Check your email for the QR code.</div>
+        <div class="alert alert-warning">⚠️ Only 23 seats remaining for Design Conclave 2025.</div>
+        <div class="alert alert-danger">❌ Registration failed. Please check your details and try again.</div>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Tabs</div>
+      <div class="tabs" style="max-width:400px;">
+        <div class="tab-item active">Overview</div>
+        <div class="tab-item">Registrations</div>
+        <div class="tab-item">Attendance</div>
+        <div class="tab-item">Analytics</div>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Pagination</div>
+      <div class="pagination">
+        <div class="page-btn">←</div>
+        <div class="page-btn">1</div>
+        <div class="page-btn active">2</div>
+        <div class="page-btn">3</div>
+        <div class="page-btn">4</div>
+        <div class="page-btn">...</div>
+        <div class="page-btn">12</div>
+        <div class="page-btn">→</div>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Skeleton Loaders</div>
+      <div class="skeleton-demo">
+        <div class="skeleton" style="height:20px;width:60%;"></div>
+        <div class="skeleton" style="height:14px;width:100%;"></div>
+        <div class="skeleton" style="height:14px;width:85%;"></div>
+        <div class="skeleton" style="height:14px;width:70%;"></div>
+        <div style="display:flex;gap:8px;"><div class="skeleton" style="width:80px;height:32px;"></div><div class="skeleton" style="width:60px;height:32px;"></div></div>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Toggles & Avatars</div>
+      <div class="component-row">
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="component-row" style="margin-top:12px;">
+        <div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--primary),var(--cyan))">A</div>
+        <div class="avatar" style="background:linear-gradient(135deg,var(--success),#34D399)">P</div>
+        <div class="avatar avatar-lg" style="background:linear-gradient(135deg,var(--warning),#FBBF24)">M</div>
+        <div class="avatar avatar-xl" style="background:linear-gradient(135deg,var(--danger),#F87171)">SA</div>
+      </div>
+    </div>
+
+    <div class="component-section">
+      <div class="component-section-title">Toast Notifications</div>
+      <div class="component-row">
+        <button class="btn btn-primary btn-sm" onclick="showToast('✅ Action completed successfully!','success')">Success Toast</button>
+        <button class="btn btn-danger btn-sm" onclick="showToast('❌ Something went wrong.','danger')">Error Toast</button>
+        <button class="btn btn-secondary btn-sm" onclick="showToast('ℹ️ Here is some information.','')">Info Toast</button>
+        <button class="btn btn-primary btn-sm" onclick="fireConfetti();showToast('🎉 Registered successfully!','success')">Confetti + Toast</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== PAGE NAV =====
+function showPage(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) { page.classList.add('active'); page.scrollIntoView({behavior:'instant'}); window.scrollTo(0,0); }
+  const tabs = document.querySelectorAll('.nav-tab');
+  const map = {landing:0,login:1,register:2,student:3,events:4,eventdetail:5,organizer:6,create:7,volunteer:8,qr:9,certificates:10,feedback:11,admin:12,profile:13,notifications:14,components:15};
+  if (map[id] !== undefined && tabs[map[id]]) tabs[map[id]].classList.add('active');
+}
+
+// ===== TOAST =====
+function showToast(msg, type) {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type ? ' toast-'+type : '');
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+// ===== CONFETTI =====
+function fireConfetti() {
+  const c = document.getElementById('confettiContainer');
+  const colors = ['#4F46E5','#06B6D4','#10B981','#F59E0B','#EF4444','#7C3AED','#EC4899'];
+  for (let i = 0; i < 60; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*20}%;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-delay:${Math.random()*0.8}s;
+      animation-duration:${1.2+Math.random()*0.8}s;
+      width:${6+Math.random()*8}px;
+      height:${6+Math.random()*8}px;
+      transform:rotate(${Math.random()*360}deg);
+    `;
+    c.appendChild(p);
+    setTimeout(() => p.remove(), 2500);
+  }
+}
+
+// ===== REGISTER STEPS =====
+function goStep(n) {
+  document.querySelectorAll('.register-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  [1,2,3].forEach(i => {
+    const sc = document.getElementById('sc'+i);
+    const sl = document.getElementById('sl'+i);
+    if (sc) { sc.className = 'step-circle ' + (i < n ? 'done' : i === n ? 'active' : 'upcoming'); }
+    if (sl) { sl.className = 'step-label' + (i <= n ? ' active' : ''); }
+    if (i < 3) { const conn = document.getElementById('conn'+i); if(conn) conn.className = 'step-connector' + (i < n ? ' done' : ''); }
+  });
+  if (n === 1) { document.getElementById('sc1').textContent = '1'; }
+  if (n === 2) { document.getElementById('sc1').textContent = '✓'; }
+  if (n === 3) { document.getElementById('sc1').textContent = '✓'; document.getElementById('sc2').textContent = '✓'; }
+}
+
+// ===== ROLE SELECTION =====
+function selectRole(el) {
+  document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ===== FAQ TOGGLE =====
+function toggleFaq(el) {
+  const ans = el.nextElementSibling;
+  ans.classList.toggle('open');
+}
+
+// ===== PASSWORD TOGGLE =====
+function togglePassword() {
+  const inp = document.getElementById('passwordInput');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ===== COUNTDOWN TIMER =====
+function updateCountdown() {
+  let secs = parseInt(document.getElementById('cd-secs').textContent);
+  let mins = parseInt(document.getElementById('cd-mins').textContent);
+  let hrs = parseInt(document.getElementById('cd-hours').textContent);
+  let days = parseInt(document.getElementById('cd-days').textContent);
+  secs--;
+  if (secs < 0) { secs = 59; mins--; }
+  if (mins < 0) { mins = 59; hrs--; }
+  if (hrs < 0) { hrs = 23; days--; }
+  const f = n => String(n).padStart(2,'0');
+  const d = document.getElementById('cd-days');
+  const h = document.getElementById('cd-hours');
+  const m = document.getElementById('cd-mins');
+  const s = document.getElementById('cd-secs');
+  if(d) d.textContent = f(days);
+  if(h) h.textContent = f(hrs);
+  if(m) m.textContent = f(mins);
+  if(s) s.textContent = f(secs);
+}
+setInterval(updateCountdown, 1000);
+
+// ===== SIMULATE QR SCAN =====
+const names = ['Aarav Patel','Diya Sharma','Karan Mehta','Priya Singh','Rahul Verma','Sneha Kumar','Vijay Rao','Ananya Joshi'];
+let scanIdx = 0;
+function simulateScan() {
+  const name = names[scanIdx % names.length];
+  scanIdx++;
+  const count = document.getElementById('scanCount');
+  if (count) count.textContent = 147 + scanIdx;
+  showToast('✅ ' + name + ' checked in!', 'success');
+  // Add to recent list
+  const card = document.getElementById('qrParticipantCard');
+  if (card) {
+    card.querySelector('.qr-participant-name').textContent = name;
+    card.querySelector('.qr-participant-info').textContent = '2021CS' + (1234 + scanIdx) + ' · IIT Delhi · CSE';
+    card.querySelector('.qr-status').className = 'qr-status present';
+    card.querySelector('.qr-status').textContent = '✅ Marked Present · ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+// ===== STAR RATING =====
+function rateStar(n) {
+  const stars = document.querySelectorAll('#starRating .star');
+  stars.forEach((s,i) => { s.className = 'star' + (i < n ? ' filled' : ''); });
+}
+</script>
+</body>
+</html>

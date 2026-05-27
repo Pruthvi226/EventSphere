@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a class="sidebar-logo" th:href="@{/dashboard}">EventSphere</a>
+            <nav class="sidebar-section">
+                <a class="sidebar-link" th:href="@{/admin/dashboard}">Overview</a>
+                <a class="sidebar-link active" th:href="@{/admin/users}">Users</a>
+                <a class="sidebar-link" th:href="@{/events}">Public events</a>
+            </nav>
+            <form th:action="@{/logout}" method="post" class="sidebar-footer">
+                <button class="btn btn-secondary btn-sm" type="submit">Sign out</button>
+            </form>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar">
+                <div>
+                    <div class="topbar-title">User management</div>
+                    <div class="topbar-subtitle">Enable accounts and assign access roles.</div>
+                </div>
+                <span class="badge badge-primary" th:text="${#lists.size(users)} + ' users'">0 users</span>
+            </div>
+
+            <section class="table-card">
+                <div class="table-header-row">
+                    <div class="table-title">All users</div>
+                </div>
+                <div class="empty-state small" th:if="${#lists.isEmpty(users)}">
+                    <h3>No users found</h3>
+                    <p>Registered accounts will appear here.</p>
+                </div>
+                <table th:unless="${#lists.isEmpty(users)}">
+                    <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Joined</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="account : ${users}">
+                        <td>
+                            <div class="identity-cell">
+                                <span class="avatar avatar-sm" th:text="${#strings.substring(account.fullName, 0, 1)}">U</span>
+                                <strong th:text="${account.fullName}">User</strong>
+                            </div>
+                        </td>
+                        <td th:text="${account.email}">email@example.com</td>
+                        <td>
+                            <form class="inline-form" th:action="@{/admin/users/{userId}/role(userId=${account.id})}" method="post">
+                                <select class="form-input compact-select" name="role">
+                                    <option th:each="roleOption : ${T(com.eventsphere.entity.User.UserRole).values()}"
+                                            th:value="${roleOption}"
+                                            th:text="${roleOption}"
+                                            th:selected="${roleOption == account.role}">ROLE</option>
+                                </select>
+                                <button class="btn btn-ghost btn-sm" type="submit">Save</button>
+                            </form>
+                        </td>
+                        <td th:text="${#temporals.format(account.createdAt, 'dd MMM yyyy')}">Date</td>
+                        <td>
+                            <span class="badge" th:classappend="${account.enabled ? 'badge-success' : 'badge-danger'}" th:text="${account.enabled ? 'Enabled' : 'Disabled'}">Enabled</span>
+                        </td>
+                        <td>
+                            <form th:if="${account.enabled}" th:action="@{/admin/users/{userId}/disable(userId=${account.id})}" method="post">
+                                <button class="btn btn-secondary btn-sm" type="submit">Disable</button>
+                            </form>
+                            <form th:unless="${account.enabled}" th:action="@{/admin/users/{userId}/enable(userId=${account.id})}" method="post">
+                                <button class="btn btn-primary btn-sm" type="submit">Enable</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script th:src="@{/static/js/app.js}"></script>
+</body>
+</html>

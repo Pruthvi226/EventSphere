@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.validation.Valid;
 
 @Controller
@@ -60,7 +61,8 @@ public class AuthController {
     @PostMapping("/register")
     public String register(@Valid @ModelAttribute UserDTO userDTO, 
                           BindingResult bindingResult,
-                          Model model) {
+                          Model model,
+                          RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             return "auth/register";
         }
@@ -71,8 +73,8 @@ public class AuthController {
         }
         
         try {
-            UserDTO registered = userService.register(userDTO);
-            model.addAttribute("message", "Registration successful. Please login.");
+            userService.register(userDTO);
+            redirectAttributes.addFlashAttribute("success", "Registration successful. Please sign in.");
             return "redirect:/auth/login";
         } catch (Exception e) {
             model.addAttribute("error", "Registration failed: " + e.getMessage());

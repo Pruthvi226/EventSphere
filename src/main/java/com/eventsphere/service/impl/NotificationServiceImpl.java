@@ -3,8 +3,14 @@ package com.eventsphere.service.impl;
 import com.eventsphere.dto.NotificationDTO;
 import com.eventsphere.entity.Notification;
 import com.eventsphere.entity.User;
+import com.eventsphere.entity.EventRegistration;
+import com.eventsphere.entity.Event;
+import com.eventsphere.entity.Certificate;
 import com.eventsphere.repository.NotificationRepository;
 import com.eventsphere.repository.UserRepository;
+import com.eventsphere.repository.EventRegistrationRepository;
+import com.eventsphere.repository.EventRepository;
+import com.eventsphere.repository.CertificateRepository;
 import com.eventsphere.service.NotificationService;
 import com.eventsphere.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +29,15 @@ public class NotificationServiceImpl implements NotificationService {
     
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EventRegistrationRepository eventRegistrationRepository;
+
+    @Autowired
+    private EventRepository eventRepository;
+
+    @Autowired
+    private CertificateRepository certificateRepository;
     
     @Override
     public NotificationDTO createNotification(Long userId, String title, String message) {
@@ -90,17 +105,38 @@ public class NotificationServiceImpl implements NotificationService {
     
     @Override
     public void sendRegistrationConfirmation(Long registrationId) {
-        // Implementation for sending registration confirmation
+        EventRegistration registration = eventRegistrationRepository.findById(registrationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+        User user = registration.getStudent();
+        String title = "Event Registration Confirmation";
+        String message = "You have successfully registered for event: " + registration.getEvent().getTitle()
+                + ". Your registration number is " + registration.getRegistrationNumber() + ".";
+        createNotification(user.getId(), title, message);
     }
-    
+
     @Override
     public void sendEventReminder(Long eventId) {
-        // Implementation for sending event reminder
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
+        List<EventRegistration> registrations = eventRegistrationRepository.findByEventAndStatus(event,
+                EventRegistration.RegistrationStatus.REGISTERED);
+        for (EventRegistration reg : registrations) {
+            String title = "Event Reminder";
+            String message = "Reminder: The event '" + event.getTitle() + "' is scheduled for " +
+                    event.getStartDateTime().toString() + ".";
+            createNotification(reg.getStudent().getId(), title, message);
+        }
     }
-    
+
     @Override
     public void sendCertificateAvailableNotification(Long certificateId) {
-        // Implementation for sending certificate available notification
+        Certificate certificate = certificateRepository.findById(certificateId)
+                .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
+        User user = certificate.getRegistration().getStudent();
+        String title = "Certificate Available";
+        String message = "Your certificate for event " + certificate.getRegistration().getEvent().getTitle()
+                + " is now available. Certificate Number: " + certificate.getCertificateNumber();
+        createNotification(user.getId(), title, message);
     }
     
     private NotificationDTO mapToDTO(Notification notification) {

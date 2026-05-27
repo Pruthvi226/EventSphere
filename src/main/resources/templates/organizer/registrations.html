@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrations | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a class="sidebar-logo" th:href="@{/dashboard}">EventSphere</a>
+            <nav class="sidebar-section">
+                <a class="sidebar-link" th:href="@{/organizer/dashboard}">Dashboard</a>
+                <a class="sidebar-link" th:href="@{/organizer/events/new}">Create event</a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div><div class="topbar-title">Registrations</div><div class="topbar-subtitle" th:text="${event != null ? event.title : 'Event'}">Event</div></div>
+                <a class="btn btn-secondary" th:href="@{/organizer/dashboard}">Back</a>
+            </div>
+            <section class="table-card">
+                <table th:unless="${#lists.isEmpty(registrations)}">
+                    <thead><tr><th>Student</th><th>Email</th><th>Number</th><th>Date</th><th>Status</th></tr></thead>
+                    <tbody>
+                    <tr th:each="registration : ${registrations}">
+                        <td th:text="${registration.studentName}">Student</td>
+                        <td th:text="${registration.studentEmail}">email</td>
+                        <td class="mono" th:text="${registration.registrationNumber}">REG</td>
+                        <td th:text="${#temporals.format(registration.registrationDate, 'dd MMM yyyy, HH:mm')}">Date</td>
+                        <td><span class="badge badge-success" th:text="${registration.status}">REGISTERED</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="empty-state small" th:if="${#lists.isEmpty(registrations)}">
+                    <h3>No registrations yet</h3>
+                    <p>Students will appear here after they reserve a seat.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

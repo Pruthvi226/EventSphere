@@ -30,9 +30,10 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/", "/home", "/about", "/contact").permitAll()
+                .requestMatchers("/", "/home", "/about", "/contact", "/certificate-verify").permitAll()
+                .requestMatchers("/events", "/events/**").permitAll()
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/static/**").permitAll()
+                .requestMatchers("/static/**", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/organizer/**").hasRole("ORGANIZER")
                 .requestMatchers("/volunteer/**").hasRole("VOLUNTEER")
@@ -42,6 +43,7 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/auth/login")
                 .loginProcessingUrl("/auth/login")
+                .usernameParameter("email")
                 .defaultSuccessUrl("/dashboard", true)
                 .failureUrl("/auth/login?error=true")
                 .permitAll()

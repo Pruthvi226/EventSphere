@@ -11,6 +11,7 @@ import com.eventsphere.service.EventService;
 import com.eventsphere.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -153,10 +154,16 @@ public class EventServiceImpl implements EventService {
     
     @Override
     public List<EventDTO> searchEvents(String keyword) {
+        if (!StringUtils.hasText(keyword)) {
+            return getPublishedEvents();
+        }
+        String normalizedKeyword = keyword.trim().toLowerCase();
         return eventRepository.findAll().stream()
-                .filter(e -> e.getTitle().contains(keyword) || 
-                           e.getDescription().contains(keyword) ||
-                           e.getCategory().contains(keyword))
+                .filter(e -> e.getStatus() == Event.EventStatus.PUBLISHED)
+                .filter(e -> containsIgnoreCase(e.getTitle(), normalizedKeyword)
+                        || containsIgnoreCase(e.getDescription(), normalizedKeyword)
+                        || containsIgnoreCase(e.getCategory(), normalizedKeyword)
+                        || containsIgnoreCase(e.getVenue(), normalizedKeyword))
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -199,5 +206,9 @@ public class EventServiceImpl implements EventService {
         dto.setCreatedAt(event.getCreatedAt());
         dto.setUpdatedAt(event.getUpdatedAt());
         return dto;
+    }
+
+    private boolean containsIgnoreCase(String value, String normalizedKeyword) {
+        return value != null && value.toLowerCase().contains(normalizedKeyword);
     }
 }

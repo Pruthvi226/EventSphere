@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Dashboard | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a class="sidebar-logo" th:href="@{/dashboard}">EventSphere</a>
+            <nav class="sidebar-section">
+                <a class="sidebar-link active" th:href="@{/volunteer/dashboard}">Dashboard</a>
+                <a class="sidebar-link" th:href="@{/volunteer/attendance}">Attendance</a>
+                <a class="sidebar-link" th:href="@{/events}">Events</a>
+            </nav>
+            <form th:action="@{/logout}" method="post" class="sidebar-footer">
+                <button class="btn btn-secondary btn-sm" type="submit">Sign out</button>
+            </form>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div><div class="topbar-title" th:text="'Volunteer workspace, ' + ${user.fullName}">Volunteer workspace</div><div class="topbar-subtitle">Support event check-ins and attendance operations.</div></div>
+                <a class="btn btn-primary" th:href="@{/volunteer/attendance}">Open attendance</a>
+            </div>
+            <section class="feature-strip">
+                <div><span class="feature-kicker">Check-in</span><h3>Mark attendance</h3><p>Use a registration ID or registration number at the attendance desk.</p></div>
+                <div><span class="feature-kicker">Assist</span><h3>Help participants</h3><p>Confirm event details from the public catalog.</p></div>
+                <div><span class="feature-kicker">Escalate</span><h3>Contact organizer</h3><p>Ask event organizers for manual fixes or duplicate registration issues.</p></div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

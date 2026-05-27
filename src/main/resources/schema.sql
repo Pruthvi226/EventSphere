@@ -1,10 +1,6 @@
 -- EventSphere Database Schema
 -- College Event Management Platform
 
--- Create Database
-CREATE DATABASE IF NOT EXISTS eventsphere_db;
-USE eventsphere_db;
-
 -- Users Table
 CREATE TABLE users (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,

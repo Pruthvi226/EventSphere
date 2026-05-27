@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+</head>
+<body>
+    <header class="modern-header">
+        <a class="brand" th:href="@{/}"><span class="brand-mark">ES</span><span>EventSphere</span></a>
+        <nav class="modern-nav">
+            <a th:href="@{/events}">Events</a>
+            <a class="active" th:href="@{/about}">About</a>
+            <a th:href="@{/contact}">Contact</a>
+            <a sec:authorize="isAuthenticated()" th:href="@{/dashboard}">Dashboard</a>
+        </nav>
+    </header>
+    <main class="section active page-shell narrow-page">
+        <span class="eyebrow">About</span>
+        <h1>Built for campus event teams.</h1>
+        <p class="lead">EventSphere is a Spring Boot and Thymeleaf platform for college event operations: publishing events, registering students, marking attendance, collecting feedback, and issuing certificates.</p>
+        <section class="feature-strip">
+            <div><span class="feature-kicker">Admin</span><h3>Govern access</h3><p>Manage user status and assign student, organizer, volunteer, or admin roles.</p></div>
+            <div><span class="feature-kicker">Organizer</span><h3>Run events</h3><p>Create and publish events, review registrations, and track attendance.</p></div>
+            <div><span class="feature-kicker">Student</span><h3>Participate</h3><p>Browse events, register, submit feedback, and download certificates.</p></div>
+        </section>
+    </main>
+</body>
+</html>

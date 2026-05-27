@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Registrations | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a class="sidebar-logo" th:href="@{/dashboard}">EventSphere</a>
+            <nav class="sidebar-section">
+                <a class="sidebar-link" th:href="@{/student/dashboard}">Dashboard</a>
+                <a class="sidebar-link" th:href="@{/events}">Browse events</a>
+                <a class="sidebar-link active" th:href="@{/student/my-registrations}">My registrations</a>
+                <a class="sidebar-link" th:href="@{/student/certificates}">Certificates</a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div><div class="topbar-title">My registrations</div><div class="topbar-subtitle">Review seats and cancellation status.</div></div>
+                <a class="btn btn-primary" th:href="@{/events}">Browse events</a>
+            </div>
+            <div class="alert alert-success" th:if="${success}" th:text="${success}">Success</div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}">Error</div>
+            <section class="table-card">
+                <table th:unless="${#lists.isEmpty(registrations)}">
+                    <thead><tr><th>Event</th><th>Registration</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                    <tr th:each="registration : ${registrations}">
+                        <td th:text="${registration.eventTitle}">Event</td>
+                        <td class="mono" th:text="${registration.registrationNumber}">REG</td>
+                        <td th:text="${#temporals.format(registration.registrationDate, 'dd MMM yyyy, HH:mm')}">Date</td>
+                        <td><span th:class="'badge ' + (${registration.status} == 'REGISTERED' ? 'badge-success' : (${registration.status} == 'WAITLISTED' ? 'badge-warning' : 'badge-danger'))" th:text="${registration.status} + (${registration.status} == 'WAITLISTED' ? ' (Pos #' + ${registration.waitlistPosition} + ')' : '')"></span></td>
+                        <td class="action-cell">
+                            <a class="btn btn-ghost btn-sm" th:href="@{/events/{id}(id=${registration.eventId})}">View</a>
+                            <form th:if="${registration.status == 'REGISTERED' or registration.status == 'WAITLISTED'}" th:action="@{/student/registrations/{id}/cancel(id=${registration.id})}" method="post">
+                                <button class="btn btn-secondary btn-sm" type="submit">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="empty-state small" th:if="${#lists.isEmpty(registrations)}">
+                    <h3>No registrations yet</h3>
+                    <p>Published events will appear in the events catalog.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

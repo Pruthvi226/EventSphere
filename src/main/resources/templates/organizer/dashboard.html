@@ -3,127 +3,103 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizer Dashboard - EventSphere</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Organizer Dashboard | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/static/css/style.css}">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/"><i class="fas fa-calendar-alt"></i> EventSphere Organizer</a>
-            <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/organizer/dashboard">Dashboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/events">Browse Events</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a class="sidebar-logo" th:href="@{/dashboard}">EventSphere</a>
+            <nav class="sidebar-section">
+                <a class="sidebar-link active" th:href="@{/organizer/dashboard}">Dashboard</a>
+                <a class="sidebar-link" th:href="@{/organizer/events/new}">Create event</a>
+                <a class="sidebar-link" th:href="@{/events}">Public events</a>
+            </nav>
+            <form th:action="@{/logout}" method="post" class="sidebar-footer">
+                <button class="btn btn-secondary btn-sm" type="submit">Sign out</button>
+            </form>
+        </aside>
 
-    <!-- Main Content -->
-    <div class="container py-5">
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <h1>Organizer Dashboard</h1>
-                <p class="text-muted">Manage your events and registrations</p>
+        <main class="main-content">
+            <div class="topbar">
+                <div>
+                    <div class="topbar-title">Organizer dashboard</div>
+                    <div class="topbar-subtitle" th:text="'Signed in as ' + ${user.fullName}">Signed in</div>
+                </div>
+                <a class="btn btn-primary" th:href="@{/organizer/events/new}">Create event</a>
             </div>
-        </div>
 
-        <!-- Statistics -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-calendar fa-2x text-success mb-2"></i>
-                        <h6 class="text-muted mb-1">Total Events</h6>
-                        <h3 th:text="${totalEvents}">0</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-user-check fa-2x text-info mb-2"></i>
-                        <h6 class="text-muted mb-1">Total Registrations</h6>
-                        <h3 th:text="${totalRegistrations}">0</h3>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card shadow-sm">
-                    <div class="card-body text-center">
-                        <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
-                        <h6 class="text-muted mb-1">Attendance Rate</h6>
-                        <h3>0%</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <div class="alert alert-success" th:if="${success}" th:text="${success}">Success</div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}">Error</div>
 
-        <!-- My Events -->
-        <div class="card shadow-sm">
-            <div class="card-header bg-success text-white">
-                <div class="row">
-                    <div class="col-md-8">
-                        <h5 class="mb-0">My Events</h5>
-                    </div>
-                    <div class="col-md-4 text-end">
-                        <button class="btn btn-light btn-sm">
-                            <i class="fas fa-plus"></i> Create Event
-                        </button>
-                    </div>
+            <section class="stats-row">
+                <div class="stat-card primary">
+                    <div class="stat-card-label">Events</div>
+                    <div class="stat-card-value" th:text="${totalEvents}">0</div>
+                    <div class="stat-card-change">Owned by you</div>
                 </div>
-            </div>
-            <div class="card-body">
-                <div th:if="${#lists.isEmpty(events)}" class="alert alert-info">
-                    You haven't created any events yet.
+                <div class="stat-card cyan">
+                    <div class="stat-card-label">Registrations</div>
+                    <div class="stat-card-value" th:text="${totalRegistrations}">0</div>
+                    <div class="stat-card-change">Across all events</div>
                 </div>
+                <div class="stat-card success">
+                    <div class="stat-card-label">Role</div>
+                    <div class="stat-card-value">Org</div>
+                    <div class="stat-card-change">Organizer workspace</div>
+                </div>
+            </section>
 
-                <table class="table table-hover" th:unless="${#lists.isEmpty(events)}">
+            <section class="table-card">
+                <div class="table-header-row">
+                    <div class="table-title">Manage events</div>
+                    <a class="btn btn-primary btn-sm" th:href="@{/organizer/events/new}">New event</a>
+                </div>
+                <div class="empty-state small" th:if="${#lists.isEmpty(events)}">
+                    <h3>No events created yet</h3>
+                    <p>Create a draft, then publish it when registration should open.</p>
+                </div>
+                <table th:unless="${#lists.isEmpty(events)}">
                     <thead>
-                        <tr>
-                            <th>Event</th>
-                            <th>Date</th>
-                            <th>Registrations</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
+                    <tr>
+                        <th>Event</th>
+                        <th>Starts</th>
+                        <th>Registrations</th>
+                        <th>Attendance</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="event : ${events}">
-                            <td th:text="${event.title}">Event Title</td>
-                            <td th:text="${#temporals.format(event.startDateTime, 'dd MMM yyyy')}">Date</td>
-                            <td>
-                                <span th:text="${event.registrationCount} + ' / ' + ${event.capacity}">0/0</span>
-                            </td>
-                            <td>
-                                <span class="badge" 
-                                      th:classappend="${event.status == 'PUBLISHED' ? 'bg-success' : 'bg-secondary'}" 
-                                      th:text="${event.status}">Status</span>
-                            </td>
-                            <td>
-                                <a href="#" class="btn btn-sm btn-primary">Edit</a>
-                                <a href="#" class="btn btn-sm btn-info">Analytics</a>
-                                <a href="#" class="btn btn-sm btn-danger">Delete</a>
-                            </td>
-                        </tr>
+                    <tr th:each="event : ${events}">
+                        <td>
+                            <strong th:text="${event.title}">Event</strong>
+                            <div class="muted" th:text="${event.category}">Category</div>
+                        </td>
+                        <td th:text="${#temporals.format(event.startDateTime, 'dd MMM yyyy, HH:mm')}">Date</td>
+                        <td th:text="${event.registrationCount ?: 0}">0</td>
+                        <td th:text="${event.attendanceCount ?: 0}">0</td>
+                        <td><span class="badge" th:classappend="${event.status == 'PUBLISHED' ? 'badge-success' : 'badge-warning'}" th:text="${event.status}">DRAFT</span></td>
+                        <td class="action-cell">
+                            <a class="btn btn-ghost btn-sm" th:href="@{/events/{id}(id=${event.id})}">View</a>
+                            <a class="btn btn-ghost btn-sm" th:href="@{/organizer/events/{id}/registrations(id=${event.id})}">Registrations</a>
+                            <a class="btn btn-ghost btn-sm" th:href="@{/organizer/events/{id}/attendance(id=${event.id})}">Attendance</a>
+                            <a class="btn btn-ghost btn-sm" th:href="@{/organizer/events/{id}/feedback(id=${event.id})}">Feedback</a>
+                            <form th:if="${event.status == 'DRAFT'}" th:action="@{/organizer/events/{id}/publish(id=${event.id})}" method="post">
+                                <button class="btn btn-primary btn-sm" type="submit">Publish</button>
+                            </form>
+                            <form th:if="${event.status == 'PUBLISHED'}" th:action="@{/organizer/events/{id}/archive(id=${event.id})}" method="post">
+                                <button class="btn btn-secondary btn-sm" type="submit">Archive</button>
+                            </form>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white mt-5 py-4">
-        <div class="container text-center">
-            <p>&copy; 2024 EventSphere. All rights reserved.</p>
-        </div>
-    </footer>
-
-    <form id="logoutForm" th:action="@{/logout}" method="POST" style="display:none;"></form>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/static/js/app.js}"></script>
 </body>
 </html>

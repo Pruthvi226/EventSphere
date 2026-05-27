@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Event | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a class="sidebar-logo" th:href="@{/dashboard}">EventSphere</a>
+            <nav class="sidebar-section">
+                <a class="sidebar-link" th:href="@{/organizer/dashboard}">Dashboard</a>
+                <a class="sidebar-link active" th:href="@{/organizer/events/new}">Create event</a>
+                <a class="sidebar-link" th:href="@{/events}">Public events</a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div><div class="topbar-title">Create event</div><div class="topbar-subtitle">Save a draft or publish immediately.</div></div>
+            </div>
+
+            <form class="creation-layout modern-form" th:action="@{/organizer/events}" th:object="${eventDTO}" method="post">
+                <section>
+                    <div class="form-section">
+                        <h2 class="form-section-title">Event basics</h2>
+                        <label>
+                            <span>Title</span>
+                            <input class="form-input" th:field="*{title}" placeholder="Cloud Native Workshop" required>
+                            <small class="form-error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></small>
+                        </label>
+                        <label>
+                            <span>Description</span>
+                            <textarea class="form-input" th:field="*{description}" rows="5" placeholder="What students will learn or experience" required></textarea>
+                            <small class="form-error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></small>
+                        </label>
+                        <div class="form-row">
+                            <label>
+                                <span>Category</span>
+                                <input class="form-input" th:field="*{category}" placeholder="Technology" required>
+                                <small class="form-error" th:if="${#fields.hasErrors('category')}" th:errors="*{category}"></small>
+                            </label>
+                            <label>
+                                <span>Venue</span>
+                                <input class="form-input" th:field="*{venue}" placeholder="Main Auditorium" required>
+                                <small class="form-error" th:if="${#fields.hasErrors('venue')}" th:errors="*{venue}"></small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h2 class="form-section-title">Schedule and capacity</h2>
+                        <div class="form-row">
+                            <label>
+                                <span>Start</span>
+                                <input class="form-input" th:field="*{startDateTime}" type="datetime-local" required>
+                                <small class="form-error" th:if="${#fields.hasErrors('startDateTime')}" th:errors="*{startDateTime}"></small>
+                            </label>
+                            <label>
+                                <span>End</span>
+                                <input class="form-input" th:field="*{endDateTime}" type="datetime-local" required>
+                                <small class="form-error" th:if="${#fields.hasErrors('endDateTime')}" th:errors="*{endDateTime}"></small>
+                            </label>
+                        </div>
+                        <div class="form-row">
+                            <label>
+                                <span>Registration deadline</span>
+                                <input class="form-input" th:field="*{registrationDeadline}" type="datetime-local" required>
+                                <small class="form-error" th:if="${#fields.hasErrors('registrationDeadline')}" th:errors="*{registrationDeadline}"></small>
+                            </label>
+                            <label>
+                                <span>Capacity</span>
+                                <input class="form-input" th:field="*{capacity}" type="number" min="1" required>
+                                <small class="form-error" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}"></small>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+
+                <aside class="info-card preview-card">
+                    <span class="eyebrow">Publish control</span>
+                    <h2>Ready for students?</h2>
+                    <p>Drafts stay in your organizer dashboard. Publishing makes the event visible in the public catalog.</p>
+                    <button class="btn btn-secondary" name="publish" value="false" type="submit">Save draft</button>
+                    <button class="btn btn-primary" name="publish" value="true" type="submit">Create and publish</button>
+                </aside>
+            </form>
+        </main>
+    </div>
+</body>
+</html>

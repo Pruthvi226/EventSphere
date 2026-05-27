@@ -5,11 +5,14 @@ import com.eventsphere.entity.EventRegistration;
 import com.eventsphere.entity.Event;
 import com.eventsphere.entity.User;
 import com.eventsphere.entity.Attendance;
+import com.eventsphere.entity.Waitlist;
 import com.eventsphere.repository.EventRegistrationRepository;
 import com.eventsphere.repository.EventRepository;
 import com.eventsphere.repository.UserRepository;
 import com.eventsphere.repository.AttendanceRepository;
+import com.eventsphere.repository.WaitlistRepository;
 import com.eventsphere.service.EventRegistrationService;
+import com.eventsphere.service.NotificationService;
 import com.eventsphere.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +39,12 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
     
     @Autowired
     private AttendanceRepository attendanceRepository;
+
+    @Autowired
+    private WaitlistRepository waitlistRepository;
+
+    @Autowired
+    private NotificationService notificationService;
     
     @Override
     public EventRegistrationDTO registerForEvent(Long eventId, Long studentId) {
@@ -44,30 +53,76 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
         
-        if (isStudentRegistered(eventId, studentId)) {
-            throw new IllegalArgumentException("Student already registered for this event");
+        Optional<EventRegistration> existingOpt = registrationRepository.findByEventAndStudent(event, student);
+        if (existingOpt.isPresent()) {
+            EventRegistration existing = existingOpt.get();
+            if (existing.getStatus() == EventRegistration.RegistrationStatus.REGISTERED) {
+                throw new IllegalArgumentException("Student already registered for this event");
+            } else if (existing.getStatus() == EventRegistration.RegistrationStatus.WAITLISTED) {
+                throw new IllegalArgumentException("Student already waitlisted for this event");
+            }
         }
         
-        if (!canRegisterForEvent(eventId, studentId)) {
-            throw new IllegalArgumentException("Cannot register for this event");
+        if (!event.getStatus().equals(Event.EventStatus.PUBLISHED)) {
+            throw new IllegalArgumentException("Cannot register for an unpublished event");
+        }
+        if (LocalDateTime.now().isAfter(event.getRegistrationDeadline())) {
+            throw new IllegalArgumentException("Registration deadline has passed");
         }
         
-        EventRegistration registration = new EventRegistration();
-        registration.setRegistrationNumber(generateRegistrationNumber());
-        registration.setRegistrationDate(LocalDateTime.now());
-        registration.setStatus(EventRegistration.RegistrationStatus.REGISTERED);
-        registration.setStudent(student);
-        registration.setEvent(event);
+        long registeredCount = getEventRegistrationCount(eventId);
+        boolean isWaitlist = registeredCount >= event.getCapacity();
         
-        EventRegistration saved = registrationRepository.save(registration);
+        EventRegistration registration;
+        if (existingOpt.isPresent()) {
+            registration = existingOpt.get();
+            registration.setRegistrationDate(LocalDateTime.now());
+        } else {
+            registration = new EventRegistration();
+            registration.setRegistrationNumber(generateRegistrationNumber());
+            registration.setRegistrationDate(LocalDateTime.now());
+            registration.setStudent(student);
+            registration.setEvent(event);
+        }
         
-        // Create attendance record
-        Attendance attendance = new Attendance();
-        attendance.setRegistration(saved);
-        attendance.setAttended(false);
-        attendanceRepository.save(attendance);
-        
-        return mapToDTO(saved);
+        if (isWaitlist) {
+            registration.setStatus(EventRegistration.RegistrationStatus.WAITLISTED);
+            EventRegistration saved = registrationRepository.save(registration);
+            
+            long waitlistCount = waitlistRepository.countByEvent(event);
+            Waitlist w = new Waitlist();
+            w.setEvent(event);
+            w.setStudent(student);
+            w.setPosition((int) waitlistCount + 1);
+            w.setAddedDate(LocalDateTime.now());
+            waitlistRepository.save(w);
+            
+            notificationService.createNotification(studentId, "Joined Waitlist", 
+                "You have been placed on the waitlist for " + event.getTitle() + " at position #" + (waitlistCount + 1) + ".");
+            
+            return mapToDTO(saved);
+        } else {
+            registration.setStatus(EventRegistration.RegistrationStatus.REGISTERED);
+            EventRegistration saved = registrationRepository.save(registration);
+            
+            Optional<Attendance> attOpt = attendanceRepository.findByRegistration(saved);
+            if (attOpt.isEmpty()) {
+                Attendance attendance = new Attendance();
+                attendance.setRegistration(saved);
+                attendance.setAttended(false);
+                attendanceRepository.save(attendance);
+            } else {
+                Attendance attendance = attOpt.get();
+                attendance.setAttended(false);
+                attendance.setCheckInTime(null);
+                attendanceRepository.save(attendance);
+            }
+            
+            notificationService.createNotification(studentId, "Registration Confirmed", 
+                "Your registration for " + event.getTitle() + " was successful. Registration ID: " + saved.getRegistrationNumber());
+            
+            return mapToDTO(saved);
+        }
     }
     
     @Override
@@ -111,8 +166,77 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
     public void cancelRegistration(Long registrationId) {
         EventRegistration registration = registrationRepository.findById(registrationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+        
+        EventRegistration.RegistrationStatus oldStatus = registration.getStatus();
+        if (oldStatus == EventRegistration.RegistrationStatus.CANCELLED) {
+            return;
+        }
+        
         registration.setStatus(EventRegistration.RegistrationStatus.CANCELLED);
         registrationRepository.save(registration);
+        
+        notificationService.createNotification(registration.getStudent().getId(), "Registration Cancelled", 
+            "Your registration/waitlist spot for " + registration.getEvent().getTitle() + " has been cancelled.");
+        
+        if (oldStatus == EventRegistration.RegistrationStatus.WAITLISTED) {
+            Optional<Waitlist> wOpt = waitlistRepository.findByEventAndStudent(registration.getEvent(), registration.getStudent());
+            if (wOpt.isPresent()) {
+                Waitlist cancelledWaitlist = wOpt.get();
+                int cancelledPos = cancelledWaitlist.getPosition();
+                waitlistRepository.delete(cancelledWaitlist);
+                
+                List<Waitlist> remaining = waitlistRepository.findByEventOrderByPosition(registration.getEvent());
+                for (Waitlist w : remaining) {
+                    if (w.getPosition() > cancelledPos) {
+                        w.setPosition(w.getPosition() - 1);
+                        waitlistRepository.save(w);
+                    }
+                }
+            }
+        }
+        
+        if (oldStatus == EventRegistration.RegistrationStatus.REGISTERED) {
+            promoteNextFromWaitlist(registration.getEvent());
+        }
+    }
+    
+    private void promoteNextFromWaitlist(Event event) {
+        List<Waitlist> waitlistQueue = waitlistRepository.findByEventOrderByPosition(event);
+        if (!waitlistQueue.isEmpty()) {
+            Waitlist firstInQueue = waitlistQueue.get(0);
+            User nextStudent = firstInQueue.getStudent();
+            
+            Optional<EventRegistration> regOpt = registrationRepository.findByEventAndStudent(event, nextStudent);
+            if (regOpt.isPresent()) {
+                EventRegistration reg = regOpt.get();
+                reg.setStatus(EventRegistration.RegistrationStatus.REGISTERED);
+                registrationRepository.save(reg);
+                
+                Optional<Attendance> attOpt = attendanceRepository.findByRegistration(reg);
+                if (attOpt.isEmpty()) {
+                    Attendance attendance = new Attendance();
+                    attendance.setRegistration(reg);
+                    attendance.setAttended(false);
+                    attendanceRepository.save(attendance);
+                } else {
+                    Attendance attendance = attOpt.get();
+                    attendance.setAttended(false);
+                    attendance.setCheckInTime(null);
+                    attendanceRepository.save(attendance);
+                }
+                
+                notificationService.createNotification(nextStudent.getId(), "Promoted from Waitlist", 
+                    "Good news! You have been promoted from the waitlist and registered for " + event.getTitle() + ".");
+            }
+            
+            waitlistRepository.delete(firstInQueue);
+            
+            for (int i = 1; i < waitlistQueue.size(); i++) {
+                Waitlist w = waitlistQueue.get(i);
+                w.setPosition(i);
+                waitlistRepository.save(w);
+            }
+        }
     }
     
     @Override
@@ -136,7 +260,9 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found"));
         User student = userRepository.findById(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found"));
-        return registrationRepository.findByEventAndStudent(event, student).isPresent();
+        Optional<EventRegistration> reg = registrationRepository.findByEventAndStudent(event, student);
+        return reg.isPresent() && (reg.get().getStatus() == EventRegistration.RegistrationStatus.REGISTERED 
+                || reg.get().getStatus() == EventRegistration.RegistrationStatus.WAITLISTED);
     }
     
     @Override
@@ -175,6 +301,12 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
         dto.setEventTitle(registration.getEvent().getTitle());
         dto.setCreatedAt(registration.getCreatedAt());
         dto.setUpdatedAt(registration.getUpdatedAt());
+        
+        if (registration.getStatus() == EventRegistration.RegistrationStatus.WAITLISTED) {
+            waitlistRepository.findByEventAndStudent(registration.getEvent(), registration.getStudent())
+                .ifPresent(w -> dto.setWaitlistPosition(w.getPosition()));
+        }
+        
         return dto;
     }
 }

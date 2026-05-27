@@ -63,6 +63,15 @@ public class AdminController {
         userService.disableUser(userId);
         return "redirect:/admin/users";
     }
+
+    @PostMapping("/users/{userId}/role")
+    public String updateRole(@PathVariable Long userId, @RequestParam User.UserRole role) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setRole(role);
+        userRepository.save(user);
+        return "redirect:/admin/users";
+    }
     
     @DeleteMapping("/users/{userId}")
     public String deleteUser(@PathVariable Long userId) {

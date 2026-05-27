@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Attendance | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a class="sidebar-logo" th:href="@{/dashboard}">EventSphere</a>
+            <nav class="sidebar-section">
+                <a class="sidebar-link" th:href="@{/volunteer/dashboard}">Dashboard</a>
+                <a class="sidebar-link active" th:href="@{/volunteer/attendance}">Attendance</a>
+                <a class="sidebar-link" th:href="@{/events}">Events</a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div><div class="topbar-title">Mark attendance</div><div class="topbar-subtitle">Check students in by ID or registration number.</div></div>
+            </div>
+            <div class="alert alert-success" th:if="${success}" th:text="${success}">Success</div>
+            <div class="alert alert-danger" th:if="${error}" th:text="${error}">Error</div>
+            <section class="admin-command">
+                <form class="info-card modern-form" th:action="@{/volunteer/mark-attendance}" method="post">
+                    <span class="eyebrow">By database ID</span>
+                    <h2>Registration ID</h2>
+                    <label>
+                        <span>Registration ID</span>
+                        <input class="form-input" name="registrationId" type="number" min="1" required>
+                    </label>
+                    <button class="btn btn-primary" type="submit">Mark attended</button>
+                </form>
+                <form class="info-card modern-form" th:action="@{/volunteer/mark-attendance/number}" method="post">
+                    <span class="eyebrow">By public number</span>
+                    <h2>Registration number</h2>
+                    <label>
+                        <span>Registration number</span>
+                        <input class="form-input" name="registrationNumber" placeholder="REG-20260526103000-ABC12345" required>
+                    </label>
+                    <button class="btn btn-secondary" type="submit">Mark attended</button>
+                </form>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

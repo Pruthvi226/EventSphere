@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback | EventSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <a class="sidebar-logo" th:href="@{/dashboard}">EventSphere</a>
+            <nav class="sidebar-section">
+                <a class="sidebar-link" th:href="@{/organizer/dashboard}">Dashboard</a>
+                <a class="sidebar-link" th:href="@{/organizer/events/new}">Create event</a>
+            </nav>
+        </aside>
+        <main class="main-content">
+            <div class="topbar">
+                <div><div class="topbar-title">Feedback</div><div class="topbar-subtitle" th:text="${event != null ? event.title : 'Event'}">Event</div></div>
+                <a class="btn btn-secondary" th:href="@{/organizer/dashboard}">Back</a>
+            </div>
+            <section class="stats-row">
+                <div class="stat-card warning">
+                    <div class="stat-card-label">Average rating</div>
+                    <div class="stat-card-value" th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">0.0</div>
+                    <div class="stat-card-change">Out of 5</div>
+                </div>
+            </section>
+            <section class="review-cards" th:if="${!#lists.isEmpty(feedbacks)}">
+                <article class="review-card" th:each="feedback : ${feedbacks}">
+                    <div class="review-header">
+                        <strong th:text="${feedback.studentName}">Student</strong>
+                        <span class="badge badge-warning" th:text="${feedback.rating} + '/5'">5/5</span>
+                    </div>
+                    <p th:text="${feedback.comment ?: 'No comment provided.'}">Comment</p>
+                </article>
+            </section>
+            <div class="empty-state" th:if="${#lists.isEmpty(feedbacks)}">
+                <h3>No feedback yet</h3>
+                <p>Student feedback appears here after submission.</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

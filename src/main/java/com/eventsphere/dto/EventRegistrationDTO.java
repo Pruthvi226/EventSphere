@@ -35,6 +35,8 @@ public class EventRegistrationDTO {
     private Long eventId;
 
     private String eventTitle;
+
+    private Integer waitlistPosition;
     
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
