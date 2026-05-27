@@ -88,7 +88,7 @@ docker compose up -d --build
 Open:
 
 ```text
-http://localhost:28080/eventsphere
+http://localhost:28080
 ```
 
 Optional phpMyAdmin:
@@ -143,7 +143,7 @@ Common environment variables:
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `SERVER_PORT` | `PORT` or `8080` | Spring Boot server port inside the container or local process. |
-| `SERVER_SERVLET_CONTEXT_PATH` | `/eventsphere` | Application base path. |
+| `SERVER_SERVLET_CONTEXT_PATH` | `/` in Docker, `/eventsphere` locally | Application base path. |
 | `SPRING_DATASOURCE_URL` | Local MySQL URL | JDBC connection string. |
 | `SPRING_DATASOURCE_USERNAME` | `root` locally, `eventsphere` in Docker | Database user. |
 | `SPRING_DATASOURCE_PASSWORD` | empty locally | Database password. |

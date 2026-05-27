@@ -27,7 +27,7 @@ USER eventsphere
 EXPOSE 8080
 VOLUME ["/app/uploads"]
 
-# Healthcheck to ensure the app is running with or without a servlet context path.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD sh -c 'curl -fsS "http://localhost:8080${SERVER_SERVLET_CONTEXT_PATH:-/eventsphere}/" || curl -fsS http://localhost:8080/ || exit 1'
+# Healthcheck to ensure the app is running with any servlet context path.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD sh -c 'ctx="${SERVER_SERVLET_CONTEXT_PATH:-/}"; if [ "$ctx" = "/" ]; then path="/"; else path="$ctx/"; fi; curl -fsS "http://localhost:8080$path" || exit 1'
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
