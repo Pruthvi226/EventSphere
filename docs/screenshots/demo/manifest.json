@@ -1,0 +1,146 @@
+{
+  "baseUrl": "http://localhost:18182/eventsphere",
+  "capturedAt": "2026-05-27T09:55:55.924Z",
+  "screenshots": [
+    {
+      "name": "home",
+      "route": "/",
+      "url": "http://localhost:18182/eventsphere/",
+      "title": "EventSphere | Campus Event Operations",
+      "file": "home.png"
+    },
+    {
+      "name": "events",
+      "route": "/events",
+      "url": "http://localhost:18182/eventsphere/events",
+      "title": "Events | EventSphere",
+      "file": "events.png"
+    },
+    {
+      "name": "event-details",
+      "route": "/events/1",
+      "url": "http://localhost:18182/eventsphere/events/1",
+      "title": "National Hackathon 2026 | EventSphere",
+      "file": "event-details.png"
+    },
+    {
+      "name": "about",
+      "route": "/about",
+      "url": "http://localhost:18182/eventsphere/about",
+      "title": "About | EventSphere",
+      "file": "about.png"
+    },
+    {
+      "name": "contact",
+      "route": "/contact",
+      "url": "http://localhost:18182/eventsphere/contact",
+      "title": "Contact | EventSphere",
+      "file": "contact.png"
+    },
+    {
+      "name": "certificate-verify",
+      "route": "/certificate-verify",
+      "url": "http://localhost:18182/eventsphere/certificate-verify",
+      "title": "Verify Certificate | EventSphere",
+      "file": "certificate-verify.png"
+    },
+    {
+      "name": "login",
+      "route": "/auth/login",
+      "url": "http://localhost:18182/eventsphere/auth/login",
+      "title": "Sign in | EventSphere",
+      "file": "login.png"
+    },
+    {
+      "name": "register",
+      "route": "/auth/register",
+      "url": "http://localhost:18182/eventsphere/auth/register",
+      "title": "Create account | EventSphere",
+      "file": "register.png"
+    },
+    {
+      "name": "admin-dashboard",
+      "route": "/admin/dashboard",
+      "url": "http://localhost:18182/eventsphere/admin/dashboard",
+      "title": "Admin Dashboard | EventSphere",
+      "file": "admin-dashboard.png"
+    },
+    {
+      "name": "admin-users",
+      "route": "/admin/users",
+      "url": "http://localhost:18182/eventsphere/admin/users",
+      "title": "User Management | EventSphere",
+      "file": "admin-users.png"
+    },
+    {
+      "name": "organizer-dashboard",
+      "route": "/organizer/dashboard",
+      "url": "http://localhost:18182/eventsphere/organizer/dashboard",
+      "title": "Organizer Dashboard | EventSphere",
+      "file": "organizer-dashboard.png"
+    },
+    {
+      "name": "organizer-new-event",
+      "route": "/organizer/events/new",
+      "url": "http://localhost:18182/eventsphere/organizer/events/new",
+      "title": "Create Event | EventSphere",
+      "file": "organizer-new-event.png"
+    },
+    {
+      "name": "organizer-registrations",
+      "route": "/organizer/events/1/registrations",
+      "url": "http://localhost:18182/eventsphere/organizer/events/1/registrations",
+      "title": "Registrations | EventSphere",
+      "file": "organizer-registrations.png"
+    },
+    {
+      "name": "organizer-attendance",
+      "route": "/organizer/events/1/attendance",
+      "url": "http://localhost:18182/eventsphere/organizer/events/1/attendance",
+      "title": "Attendance | EventSphere",
+      "file": "organizer-attendance.png"
+    },
+    {
+      "name": "organizer-feedback",
+      "route": "/organizer/events/1/feedback",
+      "url": "http://localhost:18182/eventsphere/organizer/events/1/feedback",
+      "title": "Feedback | EventSphere",
+      "file": "organizer-feedback.png"
+    },
+    {
+      "name": "student-dashboard",
+      "route": "/student/dashboard",
+      "url": "http://localhost:18182/eventsphere/student/dashboard",
+      "title": "Student Dashboard | EventSphere",
+      "file": "student-dashboard.png"
+    },
+    {
+      "name": "student-registrations",
+      "route": "/student/my-registrations",
+      "url": "http://localhost:18182/eventsphere/student/my-registrations",
+      "title": "My Registrations | EventSphere",
+      "file": "student-registrations.png"
+    },
+    {
+      "name": "student-certificates",
+      "route": "/student/certificates",
+      "url": "http://localhost:18182/eventsphere/student/certificates",
+      "title": "Certificates | EventSphere",
+      "file": "student-certificates.png"
+    },
+    {
+      "name": "volunteer-dashboard",
+      "route": "/volunteer/dashboard",
+      "url": "http://localhost:18182/eventsphere/volunteer/dashboard",
+      "title": "Volunteer Dashboard | EventSphere",
+      "file": "volunteer-dashboard.png"
+    },
+    {
+      "name": "volunteer-attendance",
+      "route": "/volunteer/attendance",
+      "url": "http://localhost:18182/eventsphere/volunteer/attendance",
+      "title": "Volunteer Attendance | EventSphere",
+      "file": "volunteer-attendance.png"
+    }
+  ]
+}

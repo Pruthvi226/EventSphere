@@ -33,6 +33,8 @@ Screenshots are stored in [docs/screenshots](docs/screenshots).
 | Login | ![Login page](docs/screenshots/login.png) |
 | Certificate verification | ![Certificate verification page](docs/screenshots/certificate-verify.png) |
 
+The complete demo screenshot set is stored in [docs/screenshots/demo](docs/screenshots/demo), including public pages plus admin, organizer, student, and volunteer views. A route/file manifest is available at [docs/screenshots/demo/manifest.json](docs/screenshots/demo/manifest.json).
+
 ## Quick Start
 
 ### Prerequisites
@@ -154,6 +156,18 @@ mvn clean package
 ```
 
 The packaged application is created under `target/`.
+
+## Demo Screenshot Capture
+
+Start the app with seed data, then regenerate the full demo screenshot set:
+
+```powershell
+$env:DEMO_BASE_URL="http://localhost:8080/eventsphere"
+$env:DEMO_SCREENSHOT_DIR="docs/screenshots/demo"
+node scripts/capture-demo-screenshots.mjs
+```
+
+The script uses headless Chrome or Edge, signs in with the seeded demo accounts, checks each page for error redirects, and writes screenshots plus `manifest.json`.
 
 ## Project Structure
 
