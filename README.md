@@ -113,17 +113,41 @@ docker compose down
 docker compose down -v
 ```
 
+## Render Deployment with TiDB
+
+For a Render web service backed by TiDB, use these settings:
+
+```text
+Build Command: mvn -DskipTests package
+Start Command: java -jar target/eventsphere-1.0.0.jar
+```
+
+Set these Render environment variables:
+
+| Variable | Value |
+| --- | --- |
+| `SPRING_DATASOURCE_URL` | TiDB MySQL JDBC URL, for example `jdbc:mysql://<tidb-host>:4000/<database>?sslMode=VERIFY_IDENTITY&enabledTLSProtocols=TLSv1.2,TLSv1.3` |
+| `SPRING_DATASOURCE_USERNAME` | TiDB username |
+| `SPRING_DATASOURCE_PASSWORD` | TiDB password |
+| `SPRING_JPA_DATABASE_PLATFORM` | `org.hibernate.dialect.MySQLDialect` |
+| `SPRING_JPA_HIBERNATE_DDL_AUTO` | `update` |
+| `APP_SEED_ENABLED` | `false` for production, `true` for demo |
+| `SERVER_SERVLET_CONTEXT_PATH` | `/eventsphere` or `/` |
+
+Render provides the runtime port in `PORT`; EventSphere automatically uses it when `SERVER_PORT` is not set.
+
 ## Configuration
 
 Common environment variables:
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `SERVER_PORT` | `8080` | Spring Boot server port inside the container or local process. |
+| `SERVER_PORT` | `PORT` or `8080` | Spring Boot server port inside the container or local process. |
 | `SERVER_SERVLET_CONTEXT_PATH` | `/eventsphere` | Application base path. |
 | `SPRING_DATASOURCE_URL` | Local MySQL URL | JDBC connection string. |
 | `SPRING_DATASOURCE_USERNAME` | `root` locally, `eventsphere` in Docker | Database user. |
 | `SPRING_DATASOURCE_PASSWORD` | empty locally | Database password. |
+| `SPRING_JPA_DATABASE_PLATFORM` | `org.hibernate.dialect.MySQLDialect` | Hibernate SQL dialect for MySQL-compatible databases such as MySQL and TiDB. |
 | `SPRING_JPA_HIBERNATE_DDL_AUTO` | `update` | Hibernate schema strategy. |
 | `APP_SEED_ENABLED` | `true` | Enables demo users, events, registrations, and certificates. |
 | `FILE_UPLOAD_DIR` | `uploads/` | Local upload directory. |
