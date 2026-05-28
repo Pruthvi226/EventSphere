@@ -1,12 +1,18 @@
+name: eventsphere
+
 services:
   db:
     image: mysql:8.0
     container_name: eventsphere-db
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-eventsphere-root-password}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-eventsphere_db}
       MYSQL_USER: ${MYSQL_USER:-eventsphere}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-eventsphere-password}
+      MYSQL_INITDB_SKIP_TZINFO: 1
     ports:
       - "${MYSQL_PORT:-3400}:3306"
     healthcheck:
@@ -20,25 +26,33 @@ services:
     restart: unless-stopped
 
   app:
+    image: eventsphere-app:latest
     build:
       context: .
       args:
         SKIP_TESTS: ${DOCKER_BUILD_SKIP_TESTS:-true}
     container_name: eventsphere-app
+    init: true
     ports:
-      - "${APP_PORT:-28080}:8080"
+      - "${APP_PORT:-28080}:${SERVER_PORT:-8080}"
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      SERVER_PORT: ${SERVER_PORT:-8080}
       SERVER_SERVLET_CONTEXT_PATH: ${SERVER_SERVLET_CONTEXT_PATH:-/}
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${MYSQL_DATABASE:-eventsphere_db}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-eventsphere}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-eventsphere-password}
+      SPRING_JPA_DATABASE_PLATFORM: ${SPRING_JPA_DATABASE_PLATFORM:-org.hibernate.dialect.MySQLDialect}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO:-update}
+      SPRING_THYMELEAF_CACHE: ${SPRING_THYMELEAF_CACHE:-true}
+      SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: ${SPRING_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE:-10}
       APP_SEED_ENABLED: ${APP_SEED_ENABLED:-true}
       JAVA_OPTS: ${JAVA_OPTS:--Xms256m -Xmx512m}
     depends_on:
       db:
         condition: service_healthy
     restart: unless-stopped
+    stop_grace_period: 30s
     volumes:
       - uploads:/app/uploads
 

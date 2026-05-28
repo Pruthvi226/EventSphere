@@ -12,6 +12,7 @@ function showPage(id) {
 // ===== TOAST =====
 function showToast(msg, type) {
   const c = document.getElementById('toastContainer');
+  if (!c) return;
   const t = document.createElement('div');
   t.className = 'toast' + (type ? ' toast-'+type : '');
   t.textContent = msg;
@@ -22,6 +23,7 @@ function showToast(msg, type) {
 // ===== CONFETTI =====
 function fireConfetti() {
   const c = document.getElementById('confettiContainer');
+  if (!c) return;
   const colors = ['#4F46E5','#06B6D4','#10B981','#F59E0B','#EF4444','#7C3AED','#EC4899'];
   for (let i = 0; i < 60; i++) {
     const p = document.createElement('div');
@@ -72,6 +74,7 @@ function toggleFaq(el) {
 // ===== PASSWORD TOGGLE =====
 function togglePassword() {
   const inp = document.getElementById('passwordInput');
+  if (!inp) return;
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
@@ -106,29 +109,19 @@ function simulateScan() {
   scanIdx++;
   const count = document.getElementById('scanCount');
   if (count) count.textContent = 147 + scanIdx;
-  showToast('✅ ' + name + ' checked in!', 'success');
-  // Add to recent list
+  showToast(name + ' checked in!', 'success');
   const card = document.getElementById('qrParticipantCard');
   if (card) {
-    card.querySelector('.qr-participant-name').textContent = name;
-setInterval(updateCountdown, 1000);
+    const participantName = card.querySelector('.qr-participant-name');
+    const participantInfo = card.querySelector('.qr-participant-info');
+    const status = card.querySelector('.qr-status');
 
-// ===== SIMULATE QR SCAN =====
-const names = ['Aarav Patel','Diya Sharma','Karan Mehta','Priya Singh','Rahul Verma','Sneha Kumar','Vijay Rao','Ananya Joshi'];
-let scanIdx = 0;
-function simulateScan() {
-  const name = names[scanIdx % names.length];
-  scanIdx++;
-  const count = document.getElementById('scanCount');
-  if (count) count.textContent = 147 + scanIdx;
-  showToast('✅ ' + name + ' checked in!', 'success');
-  // Add to recent list
-  const card = document.getElementById('qrParticipantCard');
-  if (card) {
-    card.querySelector('.qr-participant-name').textContent = name;
-    card.querySelector('.qr-participant-info').textContent = '2021CS' + (1234 + scanIdx) + ' · IIT Delhi · CSE';
-    card.querySelector('.qr-status').className = 'qr-status present';
-    card.querySelector('.qr-status').textContent = '✅ Marked Present · ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    if (participantName) participantName.textContent = name;
+    if (participantInfo) participantInfo.textContent = '2021CS' + (1234 + scanIdx) + ' - IIT Delhi - CSE';
+    if (status) {
+      status.className = 'qr-status present';
+      status.textContent = 'Marked Present - ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    }
   }
 }
 

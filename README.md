@@ -187,6 +187,14 @@ cd EventSphere
 
 **2. Run with Docker Compose**
 
+Create a local environment file from the sample:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Adjust passwords or ports in `.env` if needed, then start the stack:
+
 ```powershell
 docker compose up -d --build
 ```
@@ -201,6 +209,22 @@ Stop the app:
 
 ```powershell
 docker compose down
+```
+
+Watch app logs:
+
+```powershell
+docker compose logs -f app
+```
+
+Open phpMyAdmin when you need to inspect the database:
+
+```powershell
+docker compose --profile tools up -d phpmyadmin
+```
+
+```text
+http://localhost:28081
 ```
 
 Reset local Docker data if credentials or seeded data get out of sync:

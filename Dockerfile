@@ -8,10 +8,16 @@ RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp dependency:go-offline
 
 COPY src ./src
 ARG SKIP_TESTS=true
-RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -DskipTests=${SKIP_TESTS} package
+RUN --mount=type=cache,target=/root/.m2 mvn -B -ntp -DskipTests=${SKIP_TESTS} package \
+    && cp target/eventsphere-*.jar app.jar
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
+
+ENV SERVER_PORT=8080 \
+    SERVER_SERVLET_CONTEXT_PATH=/ \
+    JAVA_OPTS="" \
+    TZ=UTC
 
 # Install curl for health check
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
@@ -21,13 +27,13 @@ RUN groupadd --system eventsphere \
     && mkdir -p /app/uploads \
     && chown -R eventsphere:eventsphere /app
 
-COPY --from=build --chown=eventsphere:eventsphere /workspace/target/eventsphere-1.0.0.jar /app/app.jar
+COPY --from=build --chown=eventsphere:eventsphere /workspace/app.jar /app/app.jar
 
 USER eventsphere
 EXPOSE 8080
 VOLUME ["/app/uploads"]
 
-# Healthcheck to ensure the app is running with any servlet context path.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD sh -c 'ctx="${SERVER_SERVLET_CONTEXT_PATH:-/}"; if [ "$ctx" = "/" ]; then path="/"; else path="$ctx/"; fi; curl -fsS "http://localhost:8080$path" || exit 1'
+# Healthcheck follows the configured servlet context path and port.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 CMD ctx="${SERVER_SERVLET_CONTEXT_PATH:-/}"; port="${SERVER_PORT:-8080}"; if [ "$ctx" = "/" ]; then path="/"; else path="$ctx/"; fi; curl -fsS "http://localhost:${port}${path}" || exit 1
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
