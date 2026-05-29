@@ -156,12 +156,21 @@ public class PDFCertificateServiceImpl implements PDFCertificateService {
         }
     }
     
+    @org.springframework.beans.factory.annotation.Value("${file.upload-dir:uploads/}")
+    private String uploadDir;
+
     @Override
     public Optional<byte[]> getCertificatePDF(Long certificateId) {
         Optional<Certificate> certificate = certificateRepository.findById(certificateId);
         if (certificate.isPresent() && certificate.get().getFilePath() != null) {
-            // In a real implementation, read from file system
-            return Optional.empty();
+            java.nio.file.Path targetPath = java.nio.file.Paths.get(uploadDir).resolve(certificate.get().getFilePath());
+            if (java.nio.file.Files.exists(targetPath)) {
+                try {
+                    return Optional.of(java.nio.file.Files.readAllBytes(targetPath));
+                } catch (java.io.IOException e) {
+                    return Optional.empty();
+                }
+            }
         }
         return Optional.empty();
     }

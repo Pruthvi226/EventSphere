@@ -36,6 +36,9 @@ public class CertificateServiceImpl implements CertificateService {
     @Autowired
     private PDFCertificateService pdfCertificateService;
     
+    @org.springframework.beans.factory.annotation.Value("${file.upload-dir:uploads/}")
+    private String uploadDir;
+    
     @Override
     public CertificateDTO generateCertificate(Long registrationId, String certificateType) {
         EventRegistration registration = registrationRepository.findById(registrationId)
@@ -52,6 +55,18 @@ public class CertificateServiceImpl implements CertificateService {
         certificate.setIssueDate(LocalDateTime.now());
         certificate.setCertificateType(Certificate.CertificateType.valueOf(certificateType.toUpperCase()));
         certificate.setRegistration(registration);
+        
+        // Generate PDF and write to file system
+        byte[] pdfBytes = pdfCertificateService.generateCertificatePDF(registrationId, certificateType);
+        String fileName = "certificates/" + certificate.getCertificateNumber() + ".pdf";
+        java.nio.file.Path targetPath = java.nio.file.Paths.get(uploadDir).resolve(fileName);
+        try {
+            java.nio.file.Files.createDirectories(targetPath.getParent());
+            java.nio.file.Files.write(targetPath, pdfBytes);
+            certificate.setFilePath(fileName);
+        } catch (java.io.IOException e) {
+            throw new RuntimeException("Failed to save certificate PDF to disk", e);
+        }
         
         Certificate saved = certificateRepository.save(certificate);
         return mapToDTO(saved);
@@ -113,8 +128,35 @@ public class CertificateServiceImpl implements CertificateService {
     public byte[] downloadCertificatePDF(Long certificateId) {
         Certificate certificate = certificateRepository.findById(certificateId)
                 .orElseThrow(() -> new ResourceNotFoundException("Certificate not found"));
-        return pdfCertificateService.generateCertificatePDF(certificate.getRegistration().getId(), 
+        
+        if (certificate.getFilePath() != null) {
+            java.nio.file.Path targetPath = java.nio.file.Paths.get(uploadDir).resolve(certificate.getFilePath());
+            if (java.nio.file.Files.exists(targetPath)) {
+                try {
+                    return java.nio.file.Files.readAllBytes(targetPath);
+                } catch (java.io.IOException e) {
+                    // Fallback to dynamic generation if file read fails
+                }
+            }
+        }
+        
+        // Fallback/dynamic generation for legacy or seed data
+        byte[] pdfBytes = pdfCertificateService.generateCertificatePDF(certificate.getRegistration().getId(), 
                 certificate.getCertificateType().toString());
+        
+        // Save to disk for subsequent requests
+        String fileName = "certificates/" + certificate.getCertificateNumber() + ".pdf";
+        java.nio.file.Path targetPath = java.nio.file.Paths.get(uploadDir).resolve(fileName);
+        try {
+            java.nio.file.Files.createDirectories(targetPath.getParent());
+            java.nio.file.Files.write(targetPath, pdfBytes);
+            certificate.setFilePath(fileName);
+            certificateRepository.save(certificate);
+        } catch (java.io.IOException e) {
+            // Continue execution and return the dynamically created bytes
+        }
+        
+        return pdfBytes;
     }
     
     private String generateCertificateNumber() {
