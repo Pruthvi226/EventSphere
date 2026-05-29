@@ -27,11 +27,13 @@ http://localhost:28080
 http://localhost:8080/eventsphere
 ```
 
-**Demo Video**
+**Demo Preview**
 
-[![Watch the EventSphere demo video](docs/screenshots/demo/home.png)](EventSphere.mp4)
+[![EventSphere demo preview](docs/screenshots/demo/eventsphere-demo.gif)](EventSphere.mp4)
 
-[Watch the demo video](EventSphere.mp4)
+The animated preview plays inline. Click it or use the link below to open the full demo video.
+
+[Watch the full demo video](EventSphere.mp4)
 
 Screenshots below are captured from the demo flow and stored under `docs/screenshots/demo/`.
 
