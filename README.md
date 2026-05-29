@@ -13,7 +13,7 @@ EventSphere is a college event management web app that helps students, organizer
 
 A role-based event operations system for colleges, built with Spring Boot (a Java framework for building production-ready web apps) and Thymeleaf (a server-side template engine that renders HTML pages).
 
-## 2. Live Demo / Screenshots
+## 2. Live Demo / Video / Screenshots
 
 **Local Docker Demo**
 
@@ -27,82 +27,88 @@ http://localhost:28080
 http://localhost:8080/eventsphere
 ```
 
-Screenshots below use placeholder paths. Add your final images under `screenshots/`.
+**Demo Video**
+
+[![Watch the EventSphere demo video](docs/screenshots/demo/home.png)](EventSphere.mp4)
+
+[Watch the demo video](EventSphere.mp4)
+
+Screenshots below are captured from the demo flow and stored under `docs/screenshots/demo/`.
 
 **Home Page**
-![Home Page](screenshots/home.png)
+![Home Page](docs/screenshots/demo/home.png)
 > Shows the public landing page, featured events, and the main navigation into the platform.
 
 **Event Catalog Page**
-![Event Catalog](screenshots/events.png)
+![Event Catalog](docs/screenshots/demo/events.png)
 > Lets visitors browse available campus events before logging in.
 
 **Event Details Page**
-![Event Details](screenshots/event-details.png)
+![Event Details](docs/screenshots/demo/event-details.png)
 > Shows event information, schedule details, capacity, and registration actions.
 
 **Login Page**
-![Login](screenshots/login.png)
+![Login](docs/screenshots/demo/login.png)
 > Allows users to sign in with demo or registered accounts.
 
 **Register Page**
-![Register](screenshots/register.png)
+![Register](docs/screenshots/demo/register.png)
 > Lets a student create an account and start registering for events.
 
 **Admin Dashboard Page**
-![Admin Dashboard](screenshots/admin-dashboard.png)
+![Admin Dashboard](docs/screenshots/demo/admin-dashboard.png)
 > Gives admins a high-level view of users, events, and platform activity.
 
 **Admin Users Page**
-![Admin Users](screenshots/admin-users.png)
+![Admin Users](docs/screenshots/demo/admin-users.png)
 > Lets admins enable or disable users and manage role assignments.
 
 **Organizer Dashboard Page**
-![Organizer Dashboard](screenshots/organizer-dashboard.png)
+![Organizer Dashboard](docs/screenshots/demo/organizer-dashboard.png)
 > Helps organizers manage their events and track registrations.
 
 **Create Event Page**
-![Create Event](screenshots/organizer-new-event.png)
+![Create Event](docs/screenshots/demo/organizer-new-event.png)
 > Lets organizers create and publish new campus events.
 
 **Organizer Registrations Page**
-![Organizer Registrations](screenshots/organizer-registrations.png)
+![Organizer Registrations](docs/screenshots/demo/organizer-registrations.png)
 > Shows who registered for an event and supports event operations.
 
 **Organizer Attendance Page**
-![Organizer Attendance](screenshots/organizer-attendance.png)
+![Organizer Attendance](docs/screenshots/demo/organizer-attendance.png)
 > Lets organizers mark attendance and verify participation.
 
 **Organizer Feedback Page**
-![Organizer Feedback](screenshots/organizer-feedback.png)
+![Organizer Feedback](docs/screenshots/demo/organizer-feedback.png)
 > Displays student feedback so organizers can review event quality.
 
 **Student Dashboard Page**
-![Student Dashboard](screenshots/student-dashboard.png)
+![Student Dashboard](docs/screenshots/demo/student-dashboard.png)
 > Shows a student's registered events, upcoming opportunities, and quick actions.
 
 **Student Registrations Page**
-![Student Registrations](screenshots/student-registrations.png)
+![Student Registrations](docs/screenshots/demo/student-registrations.png)
 > Lets students review registrations and cancel when needed.
 
 **Student Certificates Page**
-![Student Certificates](screenshots/student-certificates.png)
+![Student Certificates](docs/screenshots/demo/student-certificates.png)
 > Shows earned certificates and download options.
 
 **Volunteer Dashboard Page**
-![Volunteer Dashboard](screenshots/volunteer-dashboard.png)
+![Volunteer Dashboard](docs/screenshots/demo/volunteer-dashboard.png)
 > Shows assigned events and attendance responsibilities for volunteers.
 
 **Volunteer Attendance Page**
-![Volunteer Attendance](screenshots/volunteer-attendance.png)
+![Volunteer Attendance](docs/screenshots/demo/volunteer-attendance.png)
 > Lets volunteers mark student attendance by registration details.
 
 **Certificate Verification Page**
-![Certificate Verification](screenshots/certificate-verify.png)
+![Certificate Verification](docs/screenshots/demo/certificate-verify.png)
 > Lets anyone verify whether a certificate is valid.
 
 **Contact Page**
-![Contact](screenshots/contact.png)
+![Contact](docs/screenshots/demo/contact.png)
 > Provides a simple way for visitors to find contact information.
 
 **Screenshot Checklist**
