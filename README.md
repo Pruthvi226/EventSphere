@@ -29,9 +29,9 @@ http://localhost:8080/eventsphere
 
 **Demo Preview**
 
-[![EventSphere Demo Walkthrough](docs/screenshots/demo/eventsphere-demo.gif)](https://media.githubusercontent.com/media/Pruthvi226/EventSphere/main/EventSphere.mp4)
+![EventSphere Demo Walkthrough](docs/screenshots/demo/eventsphere-demo.gif)
 
-*The animated preview plays automatically inline. **Click the preview animation above** to watch or download the full high-resolution demo video.*
+*The animated preview plays automatically inline. You can also watch the full high-resolution demo here: [Watch the full demo video](https://media.githubusercontent.com/media/Pruthvi226/EventSphere/main/EventSphere.mp4)*
 
 Screenshots below are captured from the demo flow and stored under `docs/screenshots/demo/`.
 
