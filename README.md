@@ -29,9 +29,9 @@ http://localhost:8080/eventsphere
 
 **Demo Preview**
 
-<video src="https://media.githubusercontent.com/media/Pruthvi226/EventSphere/main/EventSphere.mp4" width="100%" poster="docs/screenshots/demo/eventsphere-demo.gif" controls>
-    <a href="https://media.githubusercontent.com/media/Pruthvi226/EventSphere/main/EventSphere.mp4">Watch the full demo video</a>
-</video>
+![EventSphere Demo Walkthrough](docs/screenshots/demo/eventsphere-demo.gif)
+
+*The animated preview plays automatically inline. You can also watch the full high-resolution demo video here: [Watch/Download the full demo video](EventSphere.mp4)*
 
 Screenshots below are captured from the demo flow and stored under `docs/screenshots/demo/`.
 
